@@ -27,20 +27,21 @@ class ProductService {
           // Store products in Realm
           realmObject.write(() => {
             products.forEach((product: any) => {
-              realmObject.delete(realmObject.objects('Product'));
-              realmObject.create(
-                'Product',
-                {
-                  name: product.name,
-                  code: product.code,
-                  product_code: product.product_code,
-                  product_cost: product.product_cost,
-                  product_price: product.product_price,
-                  images: product.images.imageUrls,
-                  in_stock: product.in_stock,
-                },
-                Realm.UpdateMode.Modified,
-              );
+              // realmObject.create(
+              //   'Product',
+              //   {
+              //     name: product.name,
+              //     code: product.code,
+              //     product_code: product.product_code,
+              //     product_cost: product.product_cost,
+              //     product_price: product.product_price,
+              //     images: product.images.imageUrls,
+              //     in_stock: product.in_stock,
+              //     assign_quantity: product.assign_quantity,
+              //     sale_unit_name: product.sale_unit_name.name,
+              //   },
+              //   Realm.UpdateMode.Modified,
+              // );
 
               product.images = product.images.imageUrls;
             });
@@ -55,7 +56,12 @@ class ProductService {
         console.log('Network Not is available');
         const offlineProducts = realmObject.objects('Product');
         if (offlineProducts.length > 0) {
-          return offlineProducts;
+          return offlineProducts.map(element => {
+            element.sale_unit_name = {
+              name: element.sale_unit_name,
+            };
+            return element;
+          });
         } else {
           throw new Error('No network and no cached products available');
         }
@@ -160,26 +166,34 @@ class ProductService {
           const products = response.data.data;
 
           // Store products in Realm
-          // realmObject.write(() => {
-          //   products.forEach((product: any) => {
-          //     realmObject.delete(realmObject.objects('Product'));
-          //     realmObject.create(
-          //       'Product',
-          //       {
-          //         name: product.name,
-          //         code: product.code,
-          //         product_code: product.product_code,
-          //         product_cost: product.product_cost,
-          //         product_price: product.product_price,
-          //         images: product.images.imageUrls,
-          //         in_stock: product.in_stock,
-          //       },
-          //       Realm.UpdateMode.Modified,
-          //     );
+          realmObject.write(() => {
+            realmObject.delete(realmObject.objects('Product'));
+            products.forEach((product: any) => {
+              try {
+                realmObject.create(
+                  'Product',
+                  {
+                    name: product.name,
+                    code: product.code,
+                    product_code: product.product_code,
+                    product_cost: product.product_cost,
+                    product_price: product.product_price,
+                    images: product.images.imageUrls,
+                    in_stock: product.in_stock,
+                    assign_quantity: product.assign_quantity,
+                    sale_unit_name: product.sale_unit_name.name,
+                    product_unit_name: product.product_unit_name.name,
+                    id: `${product.main_product_id}`,
+                  },
+                  Realm.UpdateMode.Modified,
+                );
+              } catch (error) {
+                console.log('error:', error);
+              }
 
-          //     product.images = product.images.imageUrls;
-          //   });
-          // });
+              // product.images = product.images.imageUrls;
+            });
+          });
           products.forEach((product: any) => {
             product.images = product.images.imageUrls;
           });
@@ -191,8 +205,23 @@ class ProductService {
         // No network, fetch from Realm
         console.log('Network Not is available');
         const offlineProducts = realmObject.objects('Product');
+
         if (offlineProducts.length > 0) {
-          return offlineProducts;
+          return offlineProducts.map(element => {
+            // Create a new object by spreading the properties of the original Realm object
+            const newElement = {...element.toJSON()};
+            newElement.main_product_id = element.id;
+
+            // Modify the new object
+            newElement.sale_unit_name = {
+              name: element.sale_unit_name,
+            };
+            newElement.product_unit_name = {
+              name: element.product_unit_name,
+            };
+
+            return newElement; // Return the modified copy
+          });
         } else {
           throw new Error('No network and no cached products available');
         }
@@ -398,24 +427,24 @@ class ProductService {
           });
 
           // Store gifts in Realm
-          // realmObject.write(() => {
-          //   gifts.forEach((gift: any) => {
-          //     realmObject.create(
-          //       'Gift',
-          //       {
-          //         id: gift.id,
-          //         title: gift.title,
-          //         quantity: gift.quantity,
-          //         description: gift.discription, // Fixed in the schema but left as-is from the API
-          //         image: gift.image,
-          //         createdAt: gift.created_at,
-          //         updatedAt: gift.updated_at,
-          //         deletedAt: gift.deleted_at,
-          //       },
-          //       Realm.UpdateMode.Modified, // This will update existing records
-          //     );
-          //   });
-          // });
+          realmObject.write(() => {
+            gifts.forEach((gift: any) => {
+              realmObject.create(
+                'Gift',
+                {
+                  id: gift.id,
+                  title: gift.title,
+                  quantity: gift.quantity,
+                  description: gift.discription, // Fixed in the schema but left as-is from the API
+                  image: gift.image,
+                  createdAt: gift.created_at,
+                  updatedAt: gift.updated_at,
+                  deletedAt: gift.deleted_at,
+                },
+                Realm.UpdateMode.Modified, // This will update existing records
+              );
+            });
+          });
 
           return gifts; // Return API data
         } else {
@@ -558,65 +587,68 @@ class ProductService {
         if (response.data.data) {
           const sales = response.data.data;
           try {
-            // Store sales in Realm
-            // realmObject.write(() => {
-            //   realmObject.delete(realmObject.objects('Sale'));
-            //   sales.forEach((sale: any) => {
-            //     realmObject.create('Sale', {
-            //       id: sale.id.toString(),
-            //       type: sale.type.toString(),
-            //       outletId: outletId?.toString() || null,
-            //       date: sale.attributes.date.toString(),
-            //       isReturn: sale.attributes.is_return.toString(),
-            //       customerId: sale.attributes.customer_id.toString(),
-            //       customerName: sale.attributes.customer_name.toString(),
-            //       warehouseId: sale.attributes.warehouse_id.toString(),
-            //       warehouseName: sale.attributes.warehouse_name.toString(),
-            //       taxRate: sale.attributes.tax_rate.toString(),
-            //       taxAmount: sale.attributes.tax_amount.toString(),
-            //       discount: sale.attributes.discount.toString(),
-            //       shipping: sale.attributes.shipping.toString(),
-            //       grandTotal: sale.attributes.grand_total.toString(),
-            //       receivedAmount:
-            //         sale.attributes.received_amount?.toString() || null,
-            //       paidAmount: sale.attributes.paid_amount.toString(),
-            //       dueAmount: sale.attributes.due_amount.toString(),
-            //       paymentType: sale.attributes.payment_type.toString(),
-            //       note: sale.attributes.note?.toString() || null,
-            //       status: sale.attributes.status.toString(),
-            //       paymentStatus: sale.attributes.payment_status.toString(),
-            //       referenceCode: sale.attributes.reference_code.toString(),
-            //       barcodeUrl: sale.attributes.barcode_url.toString(),
-            //       createdAt: sale.attributes.created_at.toString(),
-            //       saleItems: sale.attributes.sale_items.map((item: any) => ({
-            //         id: item.id.toString(),
-            //         saleId: item.sale_id.toString(),
-            //         productId: item.product_id.map((product: any) => ({
-            //           name: product.name,
-            //           code: product.code,
-            //           product_code: product.product_code,
-            //           product_cost: product.product_cost,
-            //           product_price: product.product_price,
-            //           images: product.images,
-            //           in_stock: product.in_stock,
-            //           mainProductId: product.main_product_id,
-            //         })),
-            //         productPrice: item.product_price.toString(),
-            //         netUnitPrice: item.net_unit_price.toString(),
-            //         taxType: item.tax_type.toString(),
-            //         taxValue: item.tax_value.toString(),
-            //         taxAmount: item.tax_amount.toString(),
-            //         discountType: item.discount_type.toString(),
-            //         discountValue: item.discount_value.toString(),
-            //         discountAmount: item.discount_amount.toString(),
-            //         quantity: item.quantity.toString(),
-            //         subTotal: item.sub_total.toString(),
-            //         createdAt: item.created_at.toString(),
-            //         updatedAt: item.updated_at.toString(),
-            //       })),
-            //     });
-            //   }, Realm.UpdateMode.Modified);
-            // });
+            realmObject.write(() => {
+              realmObject.delete(realmObject.objects('Sale'));
+              sales.forEach((sale: any) => {
+                realmObject.create('Sale', {
+                  id: sale.id.toString(),
+                  type: sale.type.toString(),
+                  outletId: outletId?.toString() || null,
+                  date: sale.attributes.date.toString(),
+                  isReturn: sale.attributes.is_return.toString(),
+                  customerId: sale.attributes.customer_id.toString(),
+                  customerName: sale.attributes.customer_name.toString(),
+                  warehouseId: sale.attributes.warehouse_id.toString(),
+                  warehouseName: sale.attributes.warehouse_name.toString(),
+                  taxRate: sale.attributes.tax_rate.toString(),
+                  taxAmount: sale.attributes.tax_amount.toString(),
+                  discount: sale.attributes.discount.toString(),
+                  shipping: sale.attributes.shipping.toString(),
+                  grandTotal: sale.attributes.grand_total.toString(),
+                  receivedAmount:
+                    sale.attributes.received_amount?.toString() || null,
+                  paidAmount: sale.attributes.paid_amount.toString(),
+                  dueAmount: sale.attributes.due_amount.toString(),
+                  paymentType: sale.attributes.payment_type.toString(),
+                  note: sale.attributes.note?.toString() || null,
+                  status: sale.attributes.status.toString(),
+                  paymentStatus: sale.attributes.payment_status.toString(),
+                  referenceCode: sale.attributes.reference_code.toString(),
+                  barcodeUrl: sale.attributes.barcode_url.toString(),
+                  createdAt: sale.attributes.created_at.toString(),
+                  saleItems: sale.attributes.sale_items.map((item: any) => ({
+                    id: item.id.toString(),
+                    saleId: item.sale_id.toString(),
+                    productId: item.product_id.map((product: any) => ({
+                      name: product.name,
+                      code: product.code,
+                      product_code: product.product_code,
+                      product_cost: product.product_cost,
+                      product_price: product.product_price,
+                      images: product.images.imageUrls,
+                      in_stock: product.in_stock,
+                      mainProductId: product.main_product_id,
+                      assign_quantity: product.assign_quantity,
+                      sale_unit_name: product.sale_unit_name.name,
+                      product_unit_name: product.product_unit_name.name,
+                      id: `${product.main_product_id}`,
+                    })),
+                    productPrice: item.product_price.toString(),
+                    netUnitPrice: item.net_unit_price.toString(),
+                    taxType: item.tax_type.toString(),
+                    taxValue: item.tax_value.toString(),
+                    taxAmount: item.tax_amount.toString(),
+                    discountType: item.discount_type.toString(),
+                    discountValue: item.discount_value.toString(),
+                    discountAmount: item.discount_amount.toString(),
+                    quantity: item.quantity.toString(),
+                    subTotal: item.sub_total.toString(),
+                    createdAt: item.created_at.toString(),
+                    updatedAt: item.updated_at.toString(),
+                  })),
+                });
+              }, Realm.UpdateMode.Modified);
+            });
           } catch (error) {
             console.error('Failed to write sales to Realm:', error);
           }

@@ -36,13 +36,13 @@ const SalesScreen: React.FC<any> = () => {
     {id: '2', name: Const.languageData?.Cheque ?? 'Cheque'},
     {id: '5', name: Const.languageData?.Credit_limit ?? 'Credit Limit'},
   ]);
-
   const renderSaleItem = ({item}: {item: Sale}) => {
     var payment = paymentOptions.filter(
       element =>
         element.id.toString() === item.attributes.payment_type.toString(),
     );
     var paymentMethod = payment.length > 0 ? payment[0].name : '-';
+
     return (
       <TouchableOpacity
         style={styles.tableRow}

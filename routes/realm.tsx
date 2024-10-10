@@ -1,7 +1,8 @@
 const ProductSchema = {
   name: 'Product',
-  primaryKey: 'product_code',
+  primaryKey: 'id',
   properties: {
+    id:'string',
     name: 'string',
     code: 'string',
     product_code: 'string',
@@ -9,6 +10,9 @@ const ProductSchema = {
     product_price: 'int',
     images: 'string[]',
     in_stock: 'int',
+    assign_quantity: 'int',
+    sale_unit_name: 'string',
+    product_unit_name: 'string',
   },
 };
 const ProductEmbededSchema = {
