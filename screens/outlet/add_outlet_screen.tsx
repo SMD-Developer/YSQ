@@ -195,14 +195,14 @@ const AddOutletScreen: React.FC<any> = ({navigation, route}) => {
           style={styles.input}
         />
 
-        <CustomTextField
+        {/* <CustomTextField
           label={Const.languageData?.Credit_limit ?? 'Credit Limit'}
           value={outlet.credit_limit}
           onChangeText={text => setOutlet({...outlet, credit_limit: text})}
           placeholder={Const.languageData?.Enter_credit_limit ?? 'Enter points'}
           keyboardType="numeric"
           style={styles.input}
-        />
+        /> */}
 
         <Text style={styles.mapLabel}>
           {Const.languageData?.Select_Location ?? 'Select Location'}

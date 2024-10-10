@@ -23,7 +23,7 @@ const OutletService = {
       formData.append('address', data.address);
       formData.append('latitude', data.latitude);
       formData.append('longitude', data.longitude); // Fixed the typo: 'logintude' to 'longitude'
-      formData.append('credit_limit', data.credit_limit);
+      formData.append('credit_limit', data?.credit_limit ?? '0');
       formData.append('user_id', Const.user?.id);
       formData.append('salesman_id', Const.user?.id);
       formData.append('ware_id', Const.user?.distributerId);

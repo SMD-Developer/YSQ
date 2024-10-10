@@ -21,6 +21,7 @@ import {
   ImagePickerResponse,
   launchCamera,
 } from 'react-native-image-picker';
+import {Picker} from '@react-native-picker/picker';
 
 interface PaymentAndDeliveryScreenProps {
   photoUri: string;
@@ -80,14 +81,39 @@ const PaymentAndDeliveryScreen: React.FC<PaymentAndDeliveryScreenProps> = ({
           </Text>
         </View>
       )} */}
-      {showPaymentModal && (
+      {/* {showPaymentModal && (
         <TouchableOpacity onPress={() => setPaymentModalVisible(true)}>
           <SelectedPaymentDisplay
             selectedPayment={selectedPayment}
             paymentOptions={paymentOptions}
           />
         </TouchableOpacity>
-      )}
+      )} */}
+
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={selectedPayment}
+          style={styles.picker}
+          selectionColor="black"
+          placeholder={Const.languageData?.Payment_Method ?? 'Payment Method'}
+          itemStyle={{backgroundColor: 'white', color: 'black'}}
+          onValueChange={itemValue => setSelectedPayment(itemValue ?? '')}>
+          <Picker.Item
+            label={Const.languageData?.Payment_Method ?? 'Payment Method'}
+            value=""
+            enabled={false}
+          />
+          {paymentOptions.map(PAY_OP => (
+            <Picker.Item
+              key={PAY_OP.id}
+              color="black"
+              label={PAY_OP.name}
+              value={PAY_OP.id}
+            />
+          ))}
+        </Picker>
+      </View>
+
       <Text style={styles.heading}>
         {Const.languageData?.Items_Photo ?? 'Items photo'}
       </Text>
@@ -186,6 +212,21 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 50,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+  },
+  pickerContainer: {
+    height: 50,
+    borderColor: COLORS.PRIMARY,
+    borderWidth: 2,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    fontSize: 16,
+    color: '#000',
+    marginBottom: 10,
     justifyContent: 'center',
   },
 });
