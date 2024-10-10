@@ -27,7 +27,7 @@ const useAddOutletController = (editOutlet: AddOutletModel | null) => {
     city: '',
     address: '',
     postal_code: '',
-    credit_limit: '',
+    credit_limit: '0',
     channel: '',
     latitude: '',
     longitude: '',
@@ -92,10 +92,9 @@ const useAddOutletController = (editOutlet: AddOutletModel | null) => {
     setOrigin({latitude, longitude});
   };
   useEffect(() => {
-
     if (editOutlet) {
       setisEdit(true);
-    
+
       setOutlet({
         address: editOutlet.address,
         postal_code: editOutlet.postal_code,
@@ -106,15 +105,14 @@ const useAddOutletController = (editOutlet: AddOutletModel | null) => {
         channelDetails: editOutlet.channelDetails,
         city: editOutlet.city,
         country: editOutlet.country,
-        credit_limit: editOutlet.credit_limit,
+        credit_limit: editOutlet.credit_limit ?? '0',
         email: editOutlet.email,
         id: editOutlet.id,
         latitude: editOutlet.latitude,
         longitude: editOutlet.longitude,
         name: editOutlet.name,
         phone: editOutlet.phone,
-        userType: "",
-
+        userType: '',
       });
       setOriginLocation();
       if (mapRef.current && editOutlet.latitude && editOutlet.longitude) {
@@ -131,9 +129,12 @@ const useAddOutletController = (editOutlet: AddOutletModel | null) => {
       }
     } else {
       initializeLocation();
-      setOutlet({...outlet, area: Const.user?.area ?? '', country: Const.user?.country ?? ''});
+      setOutlet({
+        ...outlet,
+        area: Const.user?.area ?? '',
+        country: Const.user?.country ?? '',
+      });
     }
-
 
     fetchAreaList();
     fetchUserTypeList();
@@ -157,13 +158,13 @@ const useAddOutletController = (editOutlet: AddOutletModel | null) => {
     } = outlet;
     if (
       !name ||
-      !email ||
+      // !email ||
       !country ||
       !phone ||
       // !city ||
       !postal_code ||
       !address ||
-      !creditLimit ||
+      // !creditLimit ||
       !area ||
       !channel
     ) {

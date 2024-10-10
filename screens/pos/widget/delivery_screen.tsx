@@ -121,8 +121,8 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
       });
   };
   const [paymentOptions] = useState([
-    {id: '1', name: Const.languageData?.Cheque ?? 'Cheque'},
-    {id: '2', name: Const.languageData?.Cash ?? 'Cash'},
+    {id: '1', name: Const.languageData?.Cash ?? 'Cash'},
+    {id: '2', name: Const.languageData?.Cheque ?? 'Cheque'},
   ]);
 
   return (
@@ -290,7 +290,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                 note: comments,
                 status: 1,
                 payment_status: 1,
-                payment_type: 1,
+                payment_type: selectedPayment ?? 1,
               });
               if (response) {
                 navigation.navigate(ROUTES.ReturnSuccessScreen, {

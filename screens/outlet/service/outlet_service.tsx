@@ -23,7 +23,7 @@ const OutletService = {
       formData.append('address', data.address);
       formData.append('latitude', data.latitude);
       formData.append('longitude', data.longitude); // Fixed the typo: 'logintude' to 'longitude'
-      formData.append('credit_limit', data.credit_limit);
+      formData.append('credit_limit', data?.credit_limit ?? '0');
       formData.append('user_id', Const.user?.id);
       formData.append('salesman_id', Const.user?.id);
       formData.append('ware_id', Const.user?.distributerId);
@@ -138,7 +138,7 @@ const OutletService = {
       const user = await User.getUser();
       const getTokenHeader = await Const.getTokenHeader(); // Assume this fetches your token
       const response = await axios.get(
-        `${Const.BASE_URL}api/m1/outlets/?area_id=${user?.area}`,
+        `${Const.BASE_URL}api/m1/outlets?area_id=${user?.area}`,
         {
           headers: getTokenHeader,
         },
