@@ -35,7 +35,7 @@ const CountryScreen: React.FC<CountryScreenProps> = ({navigation}) => {
     );
   };
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.mainScreen}>
         <StatusBar backgroundColor="white" barStyle={'dark-content'} />
         <AppBar
@@ -64,7 +64,7 @@ const CountryScreen: React.FC<CountryScreenProps> = ({navigation}) => {
           />
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

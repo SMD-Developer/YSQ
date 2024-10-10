@@ -141,7 +141,7 @@ const GiftHistoryScreen: React.FC<SaleHistoryScreenProps> = ({
     setRefreshing(false);
   }, []);
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <MainAppBar title={heading} isPrimary={false} />
       {loading ? (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -194,7 +194,7 @@ const GiftHistoryScreen: React.FC<SaleHistoryScreenProps> = ({
         actionLabel={Const.languageData?.Close ?? 'Close'}
         onActionPress={onDismissSnackBar}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

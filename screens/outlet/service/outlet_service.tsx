@@ -136,9 +136,10 @@ const OutletService = {
   getAreaOutletCount: async () => {
     try {
       const user = await User.getUser();
+    
       const getTokenHeader = await Const.getTokenHeader(); // Assume this fetches your token
       const response = await axios.get(
-        `${Const.BASE_URL}api/m1/outlets/?area_id=${user?.area}`,
+        `${Const.BASE_URL}api/m1/outlets?area_id=${user?.area}`,
         {
           headers: getTokenHeader,
         },

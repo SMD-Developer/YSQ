@@ -67,7 +67,7 @@ const ProfileScreen: React.FC = ({navigation}: any) => {
     // {icon: 'account-box', title: 'Gender', value: 'Male'},
   ];
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <View style={{flex: 1}}>
       <StatusBar backgroundColor="white" barStyle={'dark-content'} />
       <LinearGradient
         colors={[COLORS.PRIMARY, COLORS.WHITE]}
@@ -122,7 +122,7 @@ const ProfileScreen: React.FC = ({navigation}: any) => {
           </View>
         </ScrollView>
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 

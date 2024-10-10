@@ -75,7 +75,7 @@ const ProductListScreen: React.FC<any> = ({navigation}) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <MainAppBar
         title={Const.languageData?.Products ?? 'Products'}
         isPrimary={false}
@@ -174,7 +174,7 @@ const ProductListScreen: React.FC<any> = ({navigation}) => {
         actionLabel={Const.languageData?.Close ?? 'Close'}
         onActionPress={onDismissSnackBar}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

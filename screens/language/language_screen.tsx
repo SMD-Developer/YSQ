@@ -75,7 +75,7 @@ const LanguageScreen: React.FC<LanguageScreenProps> = ({navigation, route}) => {
     );
   };
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.mainScreen}>
         <StatusBar backgroundColor="white" barStyle="dark-content" />
         <AppBar
@@ -154,7 +154,7 @@ const LanguageScreen: React.FC<LanguageScreenProps> = ({navigation, route}) => {
           />
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

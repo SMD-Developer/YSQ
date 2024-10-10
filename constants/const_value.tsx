@@ -62,8 +62,20 @@ export const Const = {
     return await AsyncStorage.getItem('language');
   },
 
-  getFormatedDate: (date: string) =>
-    format(new Date(date), 'dd MMM yyyy HH:mm'),
+  getFormatedDate: (date: string) => {
+    try {
+      return format(new Date(date), 'dd MMM yyyy HH:mm');
+    } catch (e) {
+      const [month, day, yearTime] = date.split('-'); // Split by '-'
+      const [year, time] = yearTime.split(' '); // Split year and time
+      const isoDateString = `${year}-${month}-${day}T00:00:00`; // Reorder to 'yyyy-MM-ddTHH:mm:ss'
+
+      const dateObject = new Date(year, month, day);
+      const formattedDate = format(dateObject, 'dd MMM yyyy');
+
+      return formattedDate;
+    }
+  },
   getCurrentLocation: async (): Promise<{
     latitude: number;
     longitude: number;
