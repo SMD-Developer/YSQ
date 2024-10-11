@@ -71,7 +71,7 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
       ]}>
       <TouchableOpacity
         style={styles.checkInButton}
-        onPress={() => setModalVisible(true)}>
+        onPress={() => (outlet ? '' : setModalVisible(true))}>
         {outlet ? (
           <View style={styles.selectedOutletContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
