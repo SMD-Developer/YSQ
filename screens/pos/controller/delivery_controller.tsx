@@ -56,7 +56,7 @@ export const useDeliveryController = (
   const createSale = async (saleData: any) => {
     try {
       setSalesLoading(true);
-      //console.log('Creating sale with data:', saleData);
+      console.log('Creating sale with data:', saleData);
       const saleResponse = await ProductService.createSale(saleData);
       //console.log('Sale response:', saleResponse);
       setSalesLoading(false);

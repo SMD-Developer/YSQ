@@ -31,14 +31,58 @@ import RecordDeatilScreen from './screens/record/record_detail';
 import ProductDetailScreen from './screens/pos/product_detail_screen';
 import SaleDetailScreen from './screens/layout/sale_details';
 import RecordSuccessScreen from './screens/record/record_success_screen';
-import CashHistoryScreen from './screens/layout/cash_history';
-import MileageHistoryScreen from './screens/layout/Mileage_history';
+
 import GiftHistoryScreen from './screens/layout/gift_history_screen';
 import GiftDetailScreen from './screens/layout/gift_details';
+import NetInfo, {NetInfoState, NetInfoStateType} from '@react-native-community/netinfo';
+import ProductService from './screens/pos/service/producr_service';
 
 const Stack = createNativeStackNavigator();
 
 function App() {
+  const wasOffline = React.useRef<boolean | null>(false); // Track previous network state
+
+  React.useEffect(() => {
+    // NetInfo.fetch = async (): Promise<NetInfoState> => ({
+    //   type: NetInfoStateType.unknown, // Use the correct enum for the 'type'
+    //   isConnected: false,
+    //   isInternetReachable: null, // Can be boolean or null
+    //   details: null, // No details when there's no connection
+    //   isWifiEnabled: false, // If needed, set to false for no Wi-Fi
+    // });
+    // Sync sales when the app starts
+    ProductService.syncRealmSales();
+    ProductService.syncGift();
+    ProductService.syncReturnSales();
+
+    // Get initial network state before setting up the listener
+    NetInfo.fetch().then(netInfoState => {
+      wasOffline.current = !netInfoState.isConnected;
+    });
+
+    // Listen for network connectivity changes
+    const unsubscribe = NetInfo.addEventListener(handleNetworkChange);
+
+    // Cleanup subscription on component unmount
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  // Handle network changes (online/offline)
+  const handleNetworkChange = (state: NetInfoState) => {
+    console.log('Calling handleNetworkChange');
+
+    // Only trigger sync if we were offline and are now connected
+    if (wasOffline.current === true && state.isConnected) {
+      console.log('Network is back online. Syncing sales...');
+      ProductService.syncRealmSales();
+          ProductService.syncGift();
+    }
+
+    // Update the previous state
+    wasOffline.current = !state.isConnected;
+  };
   return (
     <NavigationContainer>
       <StatusBar barStyle="dark-content" backgroundColor="white" />

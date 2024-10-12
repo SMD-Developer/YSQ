@@ -249,10 +249,8 @@ class ProductService {
         await this.saveSaleToRealm(saleData);
         return {succes: true}; // Exit early as we cannot send data to the server
       }
-
       // If network is available, send the data to the server
       const token = await Const.getTokenHeader();
-      console.log(saleData);
 
       const response = await axios.post(
         `${Const.BASE_URL}api/m1/sales`,
@@ -297,7 +295,9 @@ class ProductService {
           status: saleData.status,
           tax_amount: saleData.tax_amount,
           tax_rate: saleData.tax_rate,
-          warehouse_id: saleData.warehouse_id,
+          warehouse_id: saleData?.warehouse_id ?? 1,
+          image: saleData.image,
+          salesman_id: saleData.salesman_id,
         });
       });
 
@@ -325,9 +325,9 @@ class ProductService {
               ...sale,
               sale_items: JSON.parse(sale.sale_items), // Convert string back to JSON
             };
-            await this.createSale(saleData); // Attempt to send it to the server
-
-            // Remove the sale from Realm after successful sync
+            try {
+              await this.createSale(saleData); // Attempt to send it to the server
+            } catch (E) {}
             realmObject.write(() => {
               realmObject.delete(sale);
             });
@@ -486,14 +486,15 @@ class ProductService {
   static async submitGift(giftData: any) {
     try {
       // Check network connectivity
+      console.log(giftData);
       const netInfo = await NetInfo.fetch();
 
       // If no network, save gift data to Realm
-      // if (!netInfo.isConnected) {
-      //   console.log('No network, saving gift data locally to Realm.');
-      //   await this.saveGiftToRealm(giftData);
-      //   return; // Exit early since there is no network
-      // }
+      if (!netInfo.isConnected) {
+        console.log('No network, saving gift data locally to Realm.');
+        await this.saveGiftToRealm(giftData);
+        return {success: 'true'}; // Exit early since there is no network
+      }
 
       // If network is available, send the data to the server
       const token = await Const.getTokenHeaderWithFOrmType();
@@ -528,7 +529,7 @@ class ProductService {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.log('Gift submission failed:', error.response);
+        console.log('Gift submission failed:', error.response, error.message);
         throw new Error(
           error.response?.data?.message || 'Gift submission failed',
         );
@@ -552,7 +553,7 @@ class ProductService {
           outlet_id: giftData.outlet_id,
           gift_id: giftData.gift_id,
           quantity: giftData.quantity,
-          discription: giftData.discription,
+          discription: giftData.discription ?? '',
           location: giftData.location || '', // Default to an empty string if undefined
           image: giftData.image || '', // Default to an empty string if undefined
           uploaded_date: new Date(giftData.uploaded_date), // Convert to a Date object
@@ -789,17 +790,20 @@ class ProductService {
             date: saleData.date,
             discount: saleData.discount,
             grand_total: saleData.grand_total,
+            is_sale_created: saleData.is_sale_created,
             note: saleData.note,
             paid_amount: saleData.paid_amount,
+            payment_status: saleData.payment_status,
             payment_type: saleData.payment_type,
             received_amount: saleData.received_amount,
-            sale_reference: saleData.sale_reference,
-            sale_return_items: JSON.stringify(saleData.sale_return_items), // Store return items as a string
+            sale_items: JSON.stringify(saleData.sale_items), // Store as a string
             shipping: saleData.shipping,
             status: saleData.status,
             tax_amount: saleData.tax_amount,
             tax_rate: saleData.tax_rate,
-            warehouse_id: saleData.warehouse_id,
+            warehouse_id: saleData?.warehouse_id ?? 1,
+            image: saleData.image,
+            salesman_id: saleData.salesman_id,
           },
           Realm.UpdateMode.Modified, // Update if the primary key (UUID) exists
         );
@@ -847,6 +851,71 @@ class ProductService {
       }
     } catch (error) {
       console.log('Error syncing sale returns from Realm:', error);
+    }
+  }
+
+  static async syncGift() {
+    try {
+      // Check network connectivity
+      const netInfo = await NetInfo.fetch();
+
+      // If no network, return early
+      if (!netInfo.isConnected) {
+        console.log('No network available, cannot sync gifts.');
+        return;
+      }
+
+      // Fetch unsynced gifts from Realm
+      const unsyncedGifts = realmObject.objects('SaveGift');
+
+      if (unsyncedGifts.length === 0) {
+        console.log('No unsynced gifts found.');
+        return;
+      }
+
+      // Loop through unsynced gifts and try to sync them
+      for (const gift of unsyncedGifts) {
+        try {
+          // Prepare gift data
+          const giftData = {
+            sales_man_id: gift.sales_man_id,
+            outlet_id: gift.outlet_id,
+            gift_id: gift.gift_id,
+            quantity: gift.quantity,
+            discription: gift.discription || '',
+            location: gift.location || 'west',
+            uploaded_date: gift.uploaded_date, // Se
+            image: gift.image || null,
+          };
+
+          // Attempt to submit the gift using the existing submitGift function
+          const result = await this.submitGift(giftData);
+
+          // If successfully synced, remove the gift from Realm
+          if (result === true) {
+            realmObject.write(() => {
+              const giftToDelete = realmObject.objectForPrimaryKey(
+                'SaveGift',
+                gift.id,
+              );
+              if (giftToDelete) {
+                realmObject.delete(giftToDelete);
+                console.log(
+                  'Successfully synced and removed gift from Realm:',
+                  gift.id,
+                );
+              }
+            });
+          } else {
+            console.log('Failed to sync gift:', gift.id);
+          }
+        } catch (error) {
+          console.log('Error syncing gift:', gift.id, error.message);
+          // Keep the unsynced gift in Realm for future attempts
+        }
+      }
+    } catch (error) {
+      console.log('Error in syncGift:', error.message);
     }
   }
 }

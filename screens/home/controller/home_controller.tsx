@@ -34,6 +34,7 @@ const useHomeController = () => {
         HomeService.getData(),
         HomeService.getPromotions(),
       ]);
+      
 
       const homeModelData: HomeData = homeResponse.data;
       const promotionModelData: Promotion[] = promotionResponse;

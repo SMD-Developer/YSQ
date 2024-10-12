@@ -247,9 +247,9 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                 date: formattedDate,
                 is_sale_created: 'true',
                 image: `data:image/jpeg;base64,${imageBase}`,
-                customer_id: foundOutlet?.id,
+                customer_id: `${foundOutlet?.id}`,
                 salesman_id: user?.id,
-                warehouse_id: products[0].stock.warehouse_id,
+                warehouse_id: products[0]?.stock?.warehouse_id??1,
                 discount: selectedCoupon?.attributes.discount ?? 0,
                 tax_rate: '0.00',
                 tax_amount: '0.00',
@@ -257,10 +257,10 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                   return {
                     name: product.name,
                     code: product.code,
-                    stock: product.stock.quantity,
+                    stock:0,
                     short_name: product.code,
                     product_unit: product.purchase_unit,
-                    product_id: product.stock.product_id,
+                    product_id: product.main_product_id,
                     product_price: product.product_price,
                     net_unit_price: product.product_price,
                     fix_net_unit: product.sale_unit,
@@ -290,7 +290,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                 note: comments,
                 status: 1,
                 payment_status: 1,
-                payment_type: selectedPayment ?? 1,
+                payment_type: selectedPayment ?? '1',
               });
               if (response) {
                 navigation.navigate(ROUTES.ReturnSuccessScreen, {

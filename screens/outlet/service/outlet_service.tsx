@@ -117,6 +117,10 @@ const OutletService = {
 
   getAllOutletCount: async () => {
     try {
+      const networkState = await NetInfo.fetch();
+      if (!networkState.isConnected) {
+        return [];
+      }
       const user = await User.getUser();
       const getTokenHeader = await Const.getTokenHeader(); // Assume this fetches your token
       const response = await axios.get(
@@ -135,8 +139,12 @@ const OutletService = {
   },
   getAreaOutletCount: async () => {
     try {
+      const networkState = await NetInfo.fetch();
+      if (!networkState.isConnected) {
+        return [];
+      }
       const user = await User.getUser();
-    
+
       const getTokenHeader = await Const.getTokenHeader(); // Assume this fetches your token
       const response = await axios.get(
         `${Const.BASE_URL}api/m1/outlets?area_id=${user?.area}`,
@@ -170,16 +178,18 @@ const OutletService = {
         const outletsData = response.data.data; // Assuming your API response returns an array of outlets in data
 
         // Store data in Realm
-        // realmObject.write(() => {
-        //   // Remove old entries if necessary (optional)
-        //   const existingOutlets = realmObject.objects('Outlet');
-        //   realmObject.delete(existingOutlets);
+        if (allData === false) {
+          realmObject.write(() => {
+            // Remove old entries if necessary (optional)
+            const existingOutlets = realmObject.objects('Outlet');
+            realmObject.delete(existingOutlets);
 
-        //   // Insert new data
-        //   outletsData.forEach((outlet: AddOutletModel) => {
-        //     realmObject.create('Outlet', outlet, Realm.UpdateMode.Modified);
-        //   });
-        // });
+            // Insert new data
+            outletsData.forEach((outlet: AddOutletModel) => {
+              realmObject.create('Outlet', outlet, Realm.UpdateMode.Modified);
+            });
+          });
+        }
 
         // Return the freshly fetched data
         return outletsData;
@@ -207,6 +217,9 @@ const OutletService = {
           area: outlet.area,
           userType: outlet.userType,
           channel: outlet.channel,
+          channelDetails: outlet.channelDetails,
+          areaDetails: outlet.areaDetails,
+          assigned_date: outlet.assigned_date,
         }));
 
         // Return the local data

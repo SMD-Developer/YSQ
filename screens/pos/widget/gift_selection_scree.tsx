@@ -85,8 +85,9 @@ const GiftSelectionScreen: React.FC<any> = ({
             <View style={styles.productDetails}>
               <Text style={styles.productName}>{item.title}</Text>
               <Text style={styles.productPrice}>
-              {Const.languageData?.Avl_Stock ?? 'stock'} {": "} 
-                {item.quantity}</Text>
+                {Const.languageData?.Avl_Stock ?? 'stock'} {': '}
+                {item.quantity}
+              </Text>
             </View>
             <View style={styles.quantityContainer}>
               <TouchableOpacity
@@ -131,7 +132,7 @@ const GiftSelectionScreen: React.FC<any> = ({
             </View>
           </View>
         )}
-        keyExtractor={item => item.id}
+        keyExtractor={(item, index) => `${item.id} ${index}`}
       />
     </View>
   );

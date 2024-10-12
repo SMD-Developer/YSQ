@@ -2,9 +2,16 @@ import axios from 'axios';
 import {Const} from '../../../constants/const_value';
 import {LanguageModel} from '../models/language_model';
 import User from '../models/user_model';
+import NetInfo from '@react-native-community/netinfo';
 
 class LoginService {
   static getUserData = async () => {
+
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      return;
+    }
+
     console.log('Network is available');
 
     const user = await User.getUser();

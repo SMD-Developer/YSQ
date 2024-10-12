@@ -2,7 +2,7 @@ const ProductSchema = {
   name: 'Product',
   primaryKey: 'id',
   properties: {
-    id:'string',
+    id: 'string',
     name: 'string',
     code: 'string',
     product_code: 'string',
@@ -94,9 +94,12 @@ const OutletSchema = {
     country: 'string',
     city: 'string',
     address: 'string',
-    latitude: 'string',
-    longitude: 'string',
-    credit_limit: 'string',
+    latitude: 'mixed',
+    longitude: 'mixed',
+    credit_limit: 'mixed',
+    channelDetails: 'mixed',
+    areaDetails: 'mixed',
+    assigned_date: 'mixed',
   },
 };
 
@@ -145,7 +148,7 @@ const GiftSchema = {
 const SaveSaleSchema = {
   name: 'SaveSale',
   properties: {
-    customer_id: 'int',
+    customer_id: 'string',
     date: 'string',
     discount: 'int',
     grand_total: 'int',
@@ -153,7 +156,7 @@ const SaveSaleSchema = {
     note: 'string',
     paid_amount: 'int',
     payment_status: 'int',
-    payment_type: 'int',
+    payment_type: 'string',
     received_amount: 'int',
     sale_items: 'string', // You can store sale_items as a JSON string
     shipping: 'string',
@@ -161,6 +164,8 @@ const SaveSaleSchema = {
     tax_amount: 'string',
     tax_rate: 'string',
     warehouse_id: 'int',
+    image: 'string',
+    salesman_id: 'int',
   },
 };
 const SaveSaleReturnSchema = {
@@ -169,21 +174,24 @@ const SaveSaleReturnSchema = {
   properties: {
     id: 'string', // The random UUID
     sale_id: 'int', // Sale ID (not unique)
-    customer_id: 'int',
-    date: 'date',
+    customer_id: 'string',
+    date: 'string',
     discount: 'int',
     grand_total: 'int',
+    is_sale_created: 'string',
     note: 'string',
     paid_amount: 'int',
-    payment_type: 'int',
+    payment_status: 'int',
+    payment_type: 'string',
     received_amount: 'int',
-    sale_reference: 'string',
-    sale_return_items: 'string', // Store return items as a JSON string
-    shipping: 'int',
+    sale_items: 'string', // You can store sale_items as a JSON string
+    shipping: 'string',
     status: 'int',
-    tax_amount: 'int',
-    tax_rate: 'int',
+    tax_amount: 'string',
+    tax_rate: 'string',
     warehouse_id: 'int',
+    image: 'string',
+    salesman_id: 'int',
   },
 };
 const SaveGiftSchema = {
