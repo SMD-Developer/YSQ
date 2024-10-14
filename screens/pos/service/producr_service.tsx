@@ -6,6 +6,7 @@ import Realm from 'realm';
 import {realmObject} from '../../../routes/realm';
 import uuid from 'react-native-uuid'; // Import UUID generator
 import User from '../../login/models/user_model';
+import { format } from 'date-fns';
 
 class ProductService {
   static async getProducts() {
@@ -503,7 +504,7 @@ class ProductService {
       formData.append('outlet_id', giftData.outlet_id);
       formData.append('gift_id', giftData.gift_id);
       formData.append('quantity', giftData.quantity);
-      formData.append('discription', giftData.discription);
+      formData.append('discription', giftData.dscription);
       formData.append('location', 'west'); // Default to an empty string if undefined
       formData.append('uploaded_date', giftData.uploaded_date); // Convert to a Date object
 
@@ -514,6 +515,7 @@ class ProductService {
           name: 'image.jpg',
         });
       }
+      console.log(formData);
 
       const response = await axios.post(
         `${Const.BASE_URL}api/m1/submit-gift`,
@@ -522,6 +524,7 @@ class ProductService {
           headers: token,
         },
       );
+      console.log(response.data);
       if (response.data.success) {
         return true;
       } else {
@@ -553,10 +556,10 @@ class ProductService {
           outlet_id: giftData.outlet_id,
           gift_id: giftData.gift_id,
           quantity: giftData.quantity,
-          discription: giftData.discription ?? '',
+          discription: giftData.dscription ?? '',
           location: giftData.location || '', // Default to an empty string if undefined
           image: giftData.image || '', // Default to an empty string if undefined
-          uploaded_date: new Date(giftData.uploaded_date), // Convert to a Date object
+          uploaded_date: giftData.uploaded_date, // Convert to a Date object
         });
       });
 
@@ -587,6 +590,7 @@ class ProductService {
 
         if (response.data.data) {
           const sales = response.data.data;
+          console.log("sales of saleman",sales);
           try {
             realmObject.write(() => {
               realmObject.delete(realmObject.objects('Sale'));
@@ -701,7 +705,9 @@ class ProductService {
                   product_code: product.product_code,
                   product_cost: product.product_cost,
                   product_price: product.product_price,
-                  images: product.images,
+                  images: {
+                    imageUrls:product.images,
+                  },
                   in_stock: product.in_stock,
                   main_product_id: product.mainProductId,
                 })),
@@ -758,7 +764,7 @@ class ProductService {
           headers: token,
         },
       );
-
+console.log(response.data);
       return response.data.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -781,6 +787,28 @@ class ProductService {
 
       // Save the saleData into the existing Realm instance (realmObject)
       realmObject.write(() => {
+        console.log("saving in realm",{
+          id: saleReturnId, // Use the randomly generated UUID
+          sale_id: saleData.sale_id, // Original sale ID (not unique)
+          customer_id: saleData.customer_id,
+          date: saleData.date,
+          discount: saleData.discount,
+          grand_total: saleData.grand_total,
+          is_sale_created: saleData.is_sale_created,
+          note: saleData.note,
+          paid_amount: saleData.paid_amount,
+          payment_status: saleData.payment_status,
+          payment_type: saleData.payment_type,
+          received_amount: saleData.received_amount,
+          sale_items: JSON.stringify(saleData.sale_items), // Store as a string
+          shipping: saleData.shipping,
+          status: saleData.status,
+          tax_amount: saleData.tax_amount,
+          tax_rate: saleData.tax_rate,
+          warehouse_id: saleData?.warehouse_id ?? 1,
+          image: saleData.image,
+          salesman_id: saleData.salesman_id,
+        });
         realmObject.create(
           'SaveSaleReturn', // Use the updated schema name
           {
@@ -796,7 +824,7 @@ class ProductService {
             payment_status: saleData.payment_status,
             payment_type: saleData.payment_type,
             received_amount: saleData.received_amount,
-            sale_items: JSON.stringify(saleData.sale_items), // Store as a string
+            sale_items: JSON.stringify(saleData.sale_return_items), // Store as a string
             shipping: saleData.shipping,
             status: saleData.status,
             tax_amount: saleData.tax_amount,
@@ -823,6 +851,7 @@ class ProductService {
     try {
       // Check network connectivity
       const netInfo = await NetInfo.fetch();
+      console.log("sync return sale");
 
       // If network is available, sync the data
       if (netInfo.isConnected) {
@@ -834,7 +863,7 @@ class ProductService {
           try {
             const saleData = {
               ...saleReturn,
-              sale_return_items: JSON.parse(saleReturn.sale_return_items), // Convert string back to JSON
+              sale_return_items: JSON.parse(saleReturn.sale_items), // Convert string back to JSON
             };
             await this.createReturnSale(saleData); // Attempt to send it to the server
 
@@ -876,33 +905,38 @@ class ProductService {
       // Loop through unsynced gifts and try to sync them
       for (const gift of unsyncedGifts) {
         try {
+      
           // Prepare gift data
           const giftData = {
             sales_man_id: gift.sales_man_id,
             outlet_id: gift.outlet_id,
             gift_id: gift.gift_id,
             quantity: gift.quantity,
-            discription: gift.discription || '',
+            dscription: gift.discription || '',
             location: gift.location || 'west',
             uploaded_date: gift.uploaded_date, // Se
             image: gift.image || null,
           };
+          console.log("gif cached", giftData);
 
           // Attempt to submit the gift using the existing submitGift function
           const result = await this.submitGift(giftData);
+          console.log("result",result);
 
           // If successfully synced, remove the gift from Realm
           if (result === true) {
+            console.log("deleting");
             realmObject.write(() => {
               const giftToDelete = realmObject.objectForPrimaryKey(
                 'SaveGift',
                 gift.id,
               );
+              console.log("got referebce");
+              console.log(giftToDelete);
               if (giftToDelete) {
-                realmObject.delete(giftToDelete);
+               realmObject.delete(giftToDelete);
                 console.log(
                   'Successfully synced and removed gift from Realm:',
-                  gift.id,
                 );
               }
             });

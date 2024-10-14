@@ -140,6 +140,20 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = props => {
               props.navigation.navigate(ROUTES.OpeningCash, {screenType: 0});
             }}
           />
+           <DrawerItem
+            label={ 'Check IN/Out'}
+            icon="inbox-arrow-up"
+            onPress={() => {
+              props.navigation.navigate(ROUTES.CashInOUt);
+            }}
+          />
+           <DrawerItem
+            label={ 'Stock IN/Out'}
+            icon="open-in-new"
+            onPress={() => {
+              props.navigation.navigate(ROUTES.StockInOUt);
+            }}
+          />
           <DrawerItem
             label={Const.languageData?.Mileage_History ?? 'Mileage History'}
             icon="history"

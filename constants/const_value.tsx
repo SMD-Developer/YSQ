@@ -4,6 +4,8 @@ import {PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import {LanguageModel} from '../screens/login/models/language_model';
 import User from '../screens/login/models/user_model';
+import {da} from 'date-fns/locale/da';
+import moment from 'moment';
 
 export const Const = {
   PADDING_HORIZONTAL: 20,
@@ -63,17 +65,12 @@ export const Const = {
   },
 
   getFormatedDate: (date: string) => {
-    try {
+    if (date.includes('T')) {
       return format(new Date(date), 'dd MMM yyyy HH:mm');
-    } catch (e) {
-      const [month, day, yearTime] = date.split('-'); // Split by '-'
-      const [year, time] = yearTime.split(' '); // Split year and time
-      const isoDateString = `${year}-${month}-${day}T00:00:00`; // Reorder to 'yyyy-MM-ddTHH:mm:ss'
+    } else {
+      let momentObj = moment(date, 'DD-MM-YYYY hh:mm:ss');
 
-      const dateObject = new Date(year, month, day);
-      const formattedDate = format(dateObject, 'dd MMM yyyy');
-
-      return formattedDate;
+      return moment(momentObj).format('DD MMM yyyy hh:mm');
     }
   },
   getCurrentLocation: async (): Promise<{

@@ -102,6 +102,27 @@ const OutletSchema = {
     assigned_date: 'mixed',
   },
 };
+const AddOutletSchema = {
+  name: 'AddOutlet',
+  properties: {
+    name: 'mixed',
+    email: 'mixed',
+    country: 'mixed',
+    phone: 'mixed',
+    city: 'mixed?',
+    address: 'mixed',
+    latitude: 'mixed',
+    longitude: 'mixed',
+    credit_limit: 'mixed',
+    user_id: 'mixed',
+    salesman_id: 'mixed',
+    ware_id: 'mixed',
+    distributor_id: 'mixed',
+    chanel_id: 'mixed',
+    area_id: 'mixed',
+    postal_code: 'mixed?',
+  },
+};
 
 const ProductCategorySchema = {
   name: 'ProductCategory',
@@ -168,30 +189,40 @@ const SaveSaleSchema = {
     salesman_id: 'int',
   },
 };
+const MileageSchema = {
+  name: 'Mileage',
+  properties: {
+    sale_man_id: 'string',
+    type: 'string',
+    mileage: 'string',
+    vehicle_image: 'string?', // Optional field
+    mileage_image: 'string?', // Optional field
+  },
+};
 const SaveSaleReturnSchema = {
   name: 'SaveSaleReturn', // Renamed to SaveSaleReturn
   primaryKey: 'id', // Use a unique, randomly generated UUID as the primary key
   properties: {
     id: 'string', // The random UUID
-    sale_id: 'int', // Sale ID (not unique)
-    customer_id: 'string',
-    date: 'string',
-    discount: 'int',
-    grand_total: 'int',
-    is_sale_created: 'string',
-    note: 'string',
-    paid_amount: 'int',
-    payment_status: 'int',
-    payment_type: 'string',
-    received_amount: 'int',
+    sale_id: 'mixed', // Sale ID (not unique)
+    customer_id: 'mixed',
+    date: 'mixed',
+    discount: 'mixed',
+    grand_total: 'mixed',
+    is_sale_created: 'mixed',
+    note: 'mixed',
+    paid_amount: 'mixed',
+    payment_status: 'mixed',
+    payment_type: 'mixed',
+    received_amount: 'mixed',
     sale_items: 'string', // You can store sale_items as a JSON string
-    shipping: 'string',
-    status: 'int',
-    tax_amount: 'string',
-    tax_rate: 'string',
-    warehouse_id: 'int',
-    image: 'string',
-    salesman_id: 'int',
+    shipping: 'mixed',
+    status: 'mixed',
+    tax_amount: 'mixed',
+    tax_rate: 'mixed',
+    warehouse_id: 'mixed',
+    image: 'mixed',
+    salesman_id: 'mixed',
   },
 };
 const SaveGiftSchema = {
@@ -206,7 +237,23 @@ const SaveGiftSchema = {
     discription: 'string',
     location: 'string?',
     image: 'string?',
-    uploaded_date: 'date',
+    uploaded_date: 'string',
+  },
+};
+const AreaSchema = {
+  name: 'Area',
+  properties: {
+    id: 'mixed',
+    name: 'string',
+  },
+};
+
+// Define schema for storing channel list
+const ChannelSchema = {
+  name: 'Channel',
+  properties: {
+    id: 'mixed',
+    name: 'string',
   },
 };
 
@@ -214,6 +261,8 @@ import Realm from 'realm';
 const realmObject = new Realm({
   schema: [
     ProductSchema,
+    AreaSchema,
+    ChannelSchema,
     OutletSchema,
     ProductCategorySchema,
     PromotionSchema,
@@ -224,6 +273,8 @@ const realmObject = new Realm({
     SaveSaleSchema,
     SaveSaleReturnSchema,
     SaveGiftSchema,
+    MileageSchema,
+    AddOutletSchema
   ],
 });
 export {realmObject};

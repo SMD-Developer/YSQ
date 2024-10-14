@@ -36,6 +36,10 @@ import GiftHistoryScreen from './screens/layout/gift_history_screen';
 import GiftDetailScreen from './screens/layout/gift_details';
 import NetInfo, {NetInfoState, NetInfoStateType} from '@react-native-community/netinfo';
 import ProductService from './screens/pos/service/producr_service';
+import RecordMileageService from './screens/record/service/recored_service';
+import OutletService from './screens/outlet/service/outlet_service';
+import CashInOUtScreen from './screens/home/cash_in_out_screen';
+import StockInOUtScreen from './screens/home/stock_in_out_screen copy';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,17 +47,13 @@ function App() {
   const wasOffline = React.useRef<boolean | null>(false); // Track previous network state
 
   React.useEffect(() => {
-    // NetInfo.fetch = async (): Promise<NetInfoState> => ({
-    //   type: NetInfoStateType.unknown, // Use the correct enum for the 'type'
-    //   isConnected: false,
-    //   isInternetReachable: null, // Can be boolean or null
-    //   details: null, // No details when there's no connection
-    //   isWifiEnabled: false, // If needed, set to false for no Wi-Fi
-    // });
+   
     // Sync sales when the app starts
     ProductService.syncRealmSales();
     ProductService.syncGift();
     ProductService.syncReturnSales();
+    RecordMileageService.syncMileageData();
+    OutletService.syncOutletData();
 
     // Get initial network state before setting up the listener
     NetInfo.fetch().then(netInfoState => {
@@ -77,7 +77,11 @@ function App() {
     if (wasOffline.current === true && state.isConnected) {
       console.log('Network is back online. Syncing sales...');
       ProductService.syncRealmSales();
-          ProductService.syncGift();
+      ProductService.syncGift();
+      ProductService.syncReturnSales();
+      RecordMileageService.syncMileageData();
+      OutletService.syncOutletData();
+  
     }
 
     // Update the previous state
@@ -93,11 +97,13 @@ function App() {
         }}
         initialRouteName={ROUTES.SPLASH}>
         <Stack.Screen name={ROUTES.SPLASH} component={SplashScreen} />
+        <Stack.Screen name={ROUTES.CashInOUt} component={CashInOUtScreen} />
         <Stack.Screen
           name={ROUTES.AllPromotions}
           component={AllPromtionsScreen}
         />
         <Stack.Screen name={ROUTES.Language} component={LanguageScreen} />
+        <Stack.Screen name={ROUTES.StockInOUt} component={StockInOUtScreen} />
         <Stack.Screen
           name={ROUTES.GiftDetailScreen}
           component={GiftDetailScreen}

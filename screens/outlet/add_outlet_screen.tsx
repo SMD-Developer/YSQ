@@ -82,7 +82,7 @@ const AddOutletScreen: React.FC<any> = ({navigation, route}) => {
             ))}
           </Picker>
         </View> */}
-        <Text style={styles.mapLabel}>{Const.languageData?.Area} </Text>
+        <Text style={styles.mapLabel}>{Const.languageData?.Area??"Select Area"} </Text>
         <View style={styles.pickerContainer}>
           <Picker
             enabled={false}
@@ -110,7 +110,7 @@ const AddOutletScreen: React.FC<any> = ({navigation, route}) => {
           </Picker>
         </View>
         <Text style={styles.mapLabel}>
-          {Const.languageData?.Customer__Type}:
+          {Const.languageData?.Customer__Type??"Select Customer Type"}:
         </Text>
         <View style={styles.pickerContainer}>
           <Picker

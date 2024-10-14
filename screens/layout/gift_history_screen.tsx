@@ -167,6 +167,9 @@ const GiftHistoryScreen: React.FC<SaleHistoryScreenProps> = ({
 
           <FlatList
             data={filteredGiftData}
+            keyExtractor={
+              (item,index)=>index.toString()+item.id
+            }
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }

@@ -21,6 +21,8 @@ export const ROUTES = {
   Layout: 'Layout',
   Home: 'Home',
   OpeningCash: 'OpeningCash',
+  CashInOUt: 'CashInOUt',
+  StockInOUt: 'StockInOUt',
   Record: 'Record',
   AllRecord: 'AllRecord',
   RecordDetails: 'RecordDetails',
@@ -70,6 +72,8 @@ export type RootStackParamList = {
   };
   Home: undefined;
   OpeningCash: {screenType?: number};
+  CashInOUt: {screenType?: number};
+  StockInOUt: {screenType?: number};
   Record: undefined;
   RecordSuccessScreen: undefined;
   AllRecord: undefined;

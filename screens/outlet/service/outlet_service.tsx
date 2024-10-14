@@ -7,13 +7,40 @@ import {realmObject} from '../../../routes/realm';
 import User from '../../login/models/user_model';
 
 const OutletService = {
-  // Function to add an outlet
   addOutlet: async (data: AddOutletModel) => {
     try {
-      const getTokenHeader = await Const.getTokenHeaderWithFOrmType();
-      //console.log('getTokenHeader', getTokenHeader);
+      const networkState = await NetInfo.fetch();
 
-      // Prepare the form data for the API request
+      if (!networkState.isConnected) {
+        // Store the data in Realm for syncing later
+        realmObject.write(() => {
+          realmObject.create('AddOutlet', {
+            name: data.name,
+            email: data.email,
+            country: data.country,
+            phone: data.phone,
+            city: data.city ?? '',
+            address: data.address,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            credit_limit: data.credit_limit ?? '0',
+            user_id: Const.user?.id,
+            salesman_id: Const.user?.id,
+            ware_id: Const.user?.distributerId,
+            distributor_id: Const.user?.id,
+            chanel_id: data.channel,
+            area_id: data.area,
+            postal_code: data?.postal_code ?? '',
+          });
+        });
+
+        console.log('Outlet data stored locally in Realm');
+        return;
+      }
+
+      // If network is available, proceed with the API request
+      const getTokenHeader = await Const.getTokenHeaderWithFOrmType();
+
       const formData = new FormData();
       formData.append('name', data.name);
       formData.append('email', data.email);
@@ -22,7 +49,7 @@ const OutletService = {
       formData.append('city', data?.city ?? '');
       formData.append('address', data.address);
       formData.append('latitude', data.latitude);
-      formData.append('longitude', data.longitude); // Fixed the typo: 'logintude' to 'longitude'
+      formData.append('longitude', data.longitude);
       formData.append('credit_limit', data?.credit_limit ?? '0');
       formData.append('user_id', Const.user?.id);
       formData.append('salesman_id', Const.user?.id);
@@ -32,10 +59,7 @@ const OutletService = {
       formData.append('chanel_id', data.channel);
       formData.append('area_id', data.area);
       formData.append('postal_code', data?.postal_code);
-      //console.log('url', `${Const.BASE_URL}api/m1/outlets`);
-      //console.log('form data', formData);
 
-      // Make the API call to add the outlet
       const response = await axios.post(
         `${Const.BASE_URL}api/m1/outlets`,
         formData,
@@ -44,22 +68,71 @@ const OutletService = {
         },
       );
 
-      // Handle the response
       if (response.status !== 200) {
         throw new Error('Failed to add outlet');
       }
       return response.data;
     } catch (error: any) {
-      //console.log('Error caught');
+      console.log(error.message);
       if (axios.isAxiosError(error)) {
-        //console.log('This is an Axios error:', error.message);
-        //console.log('This is an Axios error reponse :', error.response!);
-        //console.log('error code:', error.code);
         throw new Error(error.response?.data?.message || 'Failed');
       } else {
-        //console.log('Unexpected error:', error);
         throw new Error('An unexpected error occurred. Please try again.');
       }
+    }
+  },
+  syncOutletData: async () => {
+    try {
+      const unsyncedOutletData = realmObject.objects('AddOutlet');
+
+      if (unsyncedOutletData.length === 0) {
+        console.log('No outlet data to sync');
+        return;
+      }
+
+      const getTokenHeader = await Const.getTokenHeaderWithFOrmType();
+
+      // Loop through unsynced outlet data
+      for (let i = 0; i < unsyncedOutletData.length; i++) {
+        const data = unsyncedOutletData[i];
+
+        const formData = new FormData();
+        formData.append('name', data.name);
+        formData.append('email', data.email);
+        formData.append('country', data.country);
+        formData.append('phone', data.phone);
+        formData.append('city', data?.city ?? '');
+        formData.append('address', data.address);
+        formData.append('latitude', data.latitude);
+        formData.append('longitude', data.longitude);
+        formData.append('credit_limit', data?.credit_limit ?? '0');
+        formData.append('user_id', data.user_id);
+        formData.append('salesman_id', data.salesman_id);
+        formData.append('ware_id', data.ware_id);
+        formData.append('distributor_id', data.distributor_id);
+        formData.append('chanel_id', data.chanel_id);
+        formData.append('area_id', data.area_id);
+        formData.append('postal_code', data?.postal_code ?? '');
+
+        // Try uploading the outlet data
+        const response = await axios.post(
+          `${Const.BASE_URL}api/m1/outlets`,
+          formData,
+          {
+            headers: getTokenHeader,
+          },
+        );
+
+        if (response.status === 200) {
+          // Remove the synced data from Realm
+          realmObject.write(() => {
+            realmObject.delete(data);
+          });
+          console.log('Synced outlet data successfully');
+        }
+      }
+    } catch (error) {
+      console.log('Error syncing outlet data:', error);
     }
   },
 
@@ -296,6 +369,19 @@ const OutletService = {
 
   getAreaList: async () => {
     try {
+      const networkState = await NetInfo.fetch();
+
+      if (!networkState.isConnected) {
+        // Fetch area list from Realm if offline
+        const storedAreaList = realmObject.objects('Area');
+        console.log('Fetched area list from Realm:', storedAreaList);
+        return storedAreaList.map(area => ({
+          id: area.id,
+          name: area.name,
+        }));
+      }
+
+      // If network is available, fetch the data from the API
       const getTokenHeader = await Const.getTokenHeader();
       const response = await axios.get(`${Const.BASE_URL}api/m1/area-list`, {
         headers: getTokenHeader,
@@ -305,8 +391,22 @@ const OutletService = {
         throw new Error('Failed to fetch area list');
       }
 
-      const areaList = response.data.data; // Assuming data is an array
-      return areaList; // Return the area list data
+      const areaList = response.data.data;
+
+      // Store the fetched area list in Realm
+      realmObject.write(() => {
+        // Delete any existing areas before adding the new data
+        realmObject.delete(realmObject.objects('Area'));
+        areaList.forEach(area => {
+          realmObject.create('Area', {
+            id: area.id,
+            name: area.name,
+          });
+        });
+      });
+
+      console.log('Area list stored in Realm');
+      return areaList;
     } catch (error) {
       console.error('Error fetching area list:', error);
       if (axios.isAxiosError(error)) {
@@ -318,24 +418,52 @@ const OutletService = {
       }
     }
   },
+
   getChannelList: async () => {
     try {
+      const networkState = await NetInfo.fetch();
+
+      if (!networkState.isConnected) {
+        // Fetch channel list from Realm if offline
+        const storedChannelList = realmObject.objects('Channel');
+        console.log('Fetched channel list from Realm:', storedChannelList);
+        return storedChannelList.map(channel => ({
+          id: channel.id,
+          name: channel.name,
+        }));
+      }
+
+      // If network is available, fetch the data from the API
       const getTokenHeader = await Const.getTokenHeader();
       const response = await axios.get(`${Const.BASE_URL}api/m1/chanels-list`, {
         headers: getTokenHeader,
       });
 
       if (response.status !== 200) {
-        throw new Error('Failed to fetch area list');
+        throw new Error('Failed to fetch channel list');
       }
 
-      const areaList = response.data.data; // Assuming data is an array
-      return areaList; // Return the area list data
+      const channelList = response.data.data;
+
+      // Store the fetched channel list in Realm
+      realmObject.write(() => {
+        // Delete any existing channels before adding the new data
+        realmObject.delete(realmObject.objects('Channel'));
+        channelList.forEach(channel => {
+          realmObject.create('Channel', {
+            id: channel.id,
+            name: channel.name,
+          });
+        });
+      });
+
+      console.log('Channel list stored in Realm');
+      return channelList;
     } catch (error) {
-      console.error('Error fetching area list:', error);
+      console.error('Error fetching channel list:', error);
       if (axios.isAxiosError(error)) {
         throw new Error(
-          error.response?.data?.message || 'Failed to fetch area list',
+          error.response?.data?.message || 'Failed to fetch channel list',
         );
       } else {
         throw new Error('An unexpected error occurred. Please try again.');
