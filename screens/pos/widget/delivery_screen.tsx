@@ -98,7 +98,13 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
       return 0;
     }
     var sum = updateProductQuantities().reduce((total, product) => {
-      return total + product.product_price * product.quantity;
+      const product_price =
+        Object.keys(product?.chanel)
+          .map(key => product?.chanel[key])
+          .find(data => foundOutlet?.chanel_id === data?.chanel_id)?.price ||
+        product.product_price;
+
+      return total + product_price * product.quantity;
     }, 0);
     var total = sum - (selectedCoupon?.attributes.discount ?? 0);
     return total; // 0 is the initial value for the total sum
@@ -249,7 +255,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                 image: `data:image/jpeg;base64,${imageBase}`,
                 customer_id: `${foundOutlet?.id}`,
                 salesman_id: user?.id,
-                warehouse_id: products[0]?.stock?.warehouse_id??1,
+                warehouse_id: products[0]?.stock?.warehouse_id ?? 1,
                 discount: selectedCoupon?.attributes.discount ?? 0,
                 tax_rate: '0.00',
                 tax_amount: '0.00',
@@ -257,11 +263,16 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                   return {
                     name: product.name,
                     code: product.code,
-                    stock:0,
+                    stock: 0,
                     short_name: product.code,
                     product_unit: product.purchase_unit,
                     product_id: product.main_product_id,
-                    product_price: product.product_price,
+                    product_price:
+                      Object.keys(product?.chanel)
+                        .map(key => product?.chanel[key])
+                        .find(
+                          data => foundOutlet?.chanel_id === data?.chanel_id,
+                        )?.price || product.product_price,
                     net_unit_price: product.product_price,
                     fix_net_unit: product.sale_unit,
                     tax_type: '0',

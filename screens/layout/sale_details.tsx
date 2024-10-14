@@ -112,7 +112,7 @@ const SaleDetailScreen: React.FC<SaleDetailScreenProps> = ({route}) => {
               <Text
                 style={
                   styles.productPrice
-                }>{`${Const.user?.currency} ${item.product_id[0].product_price}`}</Text>
+                }>{`${Const.user?.currency} ${item?.product_price}`}</Text>
               <Text style={styles.productQuantity}>
                 {Const.languageData?.Quantity ?? 'Quantity'}: {item.quantity}
               </Text>

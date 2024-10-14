@@ -83,6 +83,9 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
                     marginLeft: 15,
                   }}>
                   <Text style={styles.outletText}>{foundOutlet?.name}</Text>
+                  <Text style={{color: 'white'}}>
+                    {foundOutlet?.channelDetails?.name}
+                  </Text>
                   <Text style={{color: 'white'}}>{foundOutlet?.address}</Text>
                 </View>
               ) : (
@@ -136,6 +139,9 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
                           }}>
                           <Text style={styles.modalItemText}>
                             {item.name.trim()}
+                          </Text>
+                          <Text style={{color: COLORS.PRIMARY}}>
+                            {item?.channelDetails?.name}
                           </Text>
                           <Text style={{color: 'black'}}>{item.address}</Text>
                         </View>

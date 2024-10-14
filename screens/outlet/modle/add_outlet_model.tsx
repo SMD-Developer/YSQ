@@ -7,13 +7,14 @@ export interface AddOutletModel {
   city: string;
   userType: string;
   channel: string;
+  chanel_id: any;
   address: string;
   postal_code: string;
   credit_limit: string;
   area: string;
   latitude: string;
   longitude: string;
-  channelDetails:any;
-  areaDetails:any;
-  assigned_date:any;
+  channelDetails: any;
+  areaDetails: any;
+  assigned_date: any;
 }

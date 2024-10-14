@@ -82,7 +82,11 @@ const ReturnScreen: React.FC<any> = ({navigation, route}) => {
     setShowSnackBar,
     errorMessage,
     setError,
-  } = useDeliveryController(3, foundOutlet?.id ?? '0');
+  } = useDeliveryController(
+    3,
+    foundOutlet?.id ?? '0',
+    foundOutlet?.chanel_id ?? '0',
+  );
 
   return (
     <ScrollView style={styles.container}>
@@ -119,6 +123,7 @@ const ReturnScreen: React.FC<any> = ({navigation, route}) => {
             quantities={quantities}
             selectedSales={selectedSales}
             outletId={foundOutlet?.id ?? 0}
+            channelID={foundOutlet?.channel ?? 0}
             setQuantities={setQuantities}
           />
         )}
