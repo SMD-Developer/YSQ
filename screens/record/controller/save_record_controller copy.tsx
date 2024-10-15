@@ -46,6 +46,13 @@ const useRecordMileageController = () => {
     }
     setLoading(true);
     currentUser = await User.getUser();
+    let loaction: any;
+    try {
+      loaction = await Const.getCurrentLocationName();
+      console.log(loaction);
+    } catch (e) {
+      loaction = '';
+    }
     // @ts-ignore
     const recordMileageData: RecordMileageModel = {
       sale_man_id: currentUser?.id.toString()!,
@@ -53,8 +60,9 @@ const useRecordMileageController = () => {
       mileage: startMileage,
       vehicle_image: vehicleImage,
       mileage_image: mileageImage,
+      location: loaction,
     };
-//console.log('recordMileageData', recordMileageData);
+console.log('recordMileageData', recordMileageData);
     try {
       await RecordMileageService.uploadMileage(recordMileageData);
       

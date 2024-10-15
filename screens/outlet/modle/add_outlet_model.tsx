@@ -1,8 +1,8 @@
 export interface AddOutletModel {
   id: string | null;
   name: string;
-  email: string;
-  country: string;
+  email: string| null;
+  country: string| null;
   phone: string;
   city: string;
   userType: string;

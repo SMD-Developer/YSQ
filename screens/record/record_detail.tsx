@@ -46,6 +46,14 @@ const RecordDeatilScreen: React.FC<RecordDeatilsScreenProps> = ({
           <Text style={styles.label}>{Const.languageData?.Mileage??"Mileage"}:</Text>
           <Text style={styles.value}>{recordMileage.mileage} KM</Text>
         </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.label}>{Const.languageData?.Date??"Date"}:</Text>
+          <Text style={styles.value}>{Const.getFormatedDate2(recordMileage.created_at!)}</Text>
+        </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.label}>{"Location"}:</Text>
+          <Text style={styles.value}>{recordMileage.location}</Text>
+        </View>
         {vehicleImageUri && (
           <View style={styles.imageContainer}>
             <Text style={styles.label}>{Const.languageData?.Vehicle_Image_With_Number_Plate??"Vehicle Image"}:</Text>

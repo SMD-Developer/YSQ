@@ -15,6 +15,8 @@ export const useHistoryController = (screenType: number) => {
   const [visible, setVisible] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [lastIndex, setLastIndex] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [filteredData, setFilteredData] = useState<Sale[]>(data);
   const [filteredGiftData, setFilteredGiftData] =
     useState<GiftTransaction[]>(giftData);
@@ -36,7 +38,7 @@ export const useHistoryController = (screenType: number) => {
       setFilteredGiftData(giftData);
     }
   };
-  var currentPage = 1;
+
   const onReferesh = () => {
     if (screenType === 1) {
       fetchSalesHistoryData(currentPage);
@@ -45,8 +47,8 @@ export const useHistoryController = (screenType: number) => {
     } else if (screenType === 3) {
       fetchGiftHistoryData(currentPage);
     }
-    currentPage = 1;
-    lastPage = 1;
+    setCurrentPage (1);
+    setLastIndex(1);
   };
 
   useEffect(() => {
@@ -59,17 +61,23 @@ export const useHistoryController = (screenType: number) => {
     }
   }, [screenType, isFocused]);
 
-  var lastPage = 1;
+
   const fetchNextPage = async () => {
-    if (currentPage >= lastPage) {
+    console.log("fetch next page", currentPage);
+    console.log("lastPage", lastIndex);
+    console.log(currentPage>=lastIndex);
+    if (currentPage >= lastIndex) {
       return;
     }
-    currentPage++;
+
+     setCurrentPage((prevPage) => prevPage + 1);
+
 
     if (screenType === 1) {
-      fetchSalesHistoryData(currentPage);
+
+      fetchSalesHistoryData(currentPage+1);
     } else if (screenType === 3) {
-      fetchGiftHistoryData(currentPage);
+      fetchGiftHistoryData(currentPage+1);
     }
   };
 
@@ -82,8 +90,7 @@ export const useHistoryController = (screenType: number) => {
         undefined,
         page ?? 1,
       );
-      lastPage = last_page;
-
+      setLastIndex(last_page);
       if (page === 1) {
         setData([]);
         setFilteredData([]);
@@ -93,7 +100,6 @@ export const useHistoryController = (screenType: number) => {
 
       setFilteredData(prevData => [...prevData, ...response]);
     } catch (error: any) {
-      //console.log(error);
       const message =
         error.message || 'An unexpected error occurred. Please try again.';
 
@@ -110,14 +116,11 @@ export const useHistoryController = (screenType: number) => {
     if (page === 1) {
       setLoading(true);
     }
-    console.log('fetching sales return history');
     try {
       var {response, last_page} =
         await SaleHistoryService.getSalesReturnHisyoty(page ?? 1);
 
-      lastPage = last_page;
-      console.log('last page', lastPage);
-      console.log('response', response);
+      setLastIndex(last_page);
       setData(prevData => [...prevData, ...response]);
       setFilteredData(prevData => [...prevData, ...response]);
     } catch (error: any) {
@@ -144,9 +147,8 @@ export const useHistoryController = (screenType: number) => {
         page ?? 1,
       );
       setGiftData(prevData => [...prevData, ...response]);
-      lastPage = last_page;
+      setLastIndex( last_page);
       setFilteredGiftData(prevData => [...prevData, ...response]);
-      console.log('filtered gifts', filteredGiftData.length);
     } catch (error: any) {
       //console.log(error);
       const message =

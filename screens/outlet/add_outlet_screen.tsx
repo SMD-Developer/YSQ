@@ -253,7 +253,7 @@ const AddOutletScreen: React.FC<any> = ({navigation, route}) => {
             }}
             styles={{
               textInputContainer: styles.textInputContainer,
-              textInput: styles.textInput,
+              // // textInput: styles.textInput,
               description: styles.textInput,
               predefinedPlacesDescription: styles.predefinedPlacesDescription,
             }}
@@ -387,8 +387,9 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   textInput: {
-    height: 40,
-    fontSize: 16,
+    // height: 40,
+    // width:"100%",
+    // fontSize: 16,
     color: 'black',
   },
   predefinedPlacesDescription: {

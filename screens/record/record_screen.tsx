@@ -37,7 +37,7 @@ const RecordScreen: React.FC<RecordScreenProps> = ({navigation}) => {
         navigation.navigate(ROUTES.RecordDetails, {recordMileage: item});
       }}>
       <Text style={styles.dateText}>
-        {Const.getFormatedDate(item.created_at!)}
+        {Const.getFormatedDate2(item.created_at!)}
       </Text> 
       <View style={styles.mileageRow}>
         <Text style={styles.mileageText}>

@@ -73,6 +73,84 @@ export const Const = {
       return moment(momentObj).format('DD MMM yyyy hh:mm');
     }
   },
+ getCurrentLocationName:async () => {
+   if (Platform.OS === 'android') {
+     return await Const.requestLocationPermission();
+   } else {
+     return await Const.getLocation();
+   }
+ },
+
+  requestLocationPermission: async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // Wait for location retrieval and address resolution
+        return await Const.getLocation();
+      } else {
+        console.log('Location permission denied');
+        return 'Permission denied';
+      }
+    } catch (err) {
+      console.warn(err);
+      return 'Error in requesting location permission';
+    }
+  },
+
+  getLocation: async () => {
+    return new Promise((resolve, reject) => {
+      Geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            // Wait for the address to be retrieved
+            console.log(position.coords)
+            const address = await Const.getAddressFromCoordinates(
+              latitude.toString(),
+              longitude.toString()
+            );
+            resolve(address);  // Return the resolved address
+          } catch (error) {
+            reject('Error in getting address');
+          }
+        },
+        (error) => {
+          console.log(error.code, error.message);
+          reject('Error in getting location');
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      );
+    });
+  },
+
+  getAddressFromCoordinates: async (latitude:string, longitude:string) => {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyD6lpgvCGHSvAInVE7wbZ2-OrwJPyVn0OA`
+      );
+      const data = await response.json();
+      console.log(data)
+      if (data.results && data.results.length > 0) {
+        // Return the formatted address string
+        return data.results[0].formatted_address;
+      } else {
+        return 'No address found';
+      }
+    } catch (error) {
+      console.error('Error fetching address:', error);
+      return 'Error fetching address';
+    }
+  },
+
+  getFormatedDate2: (date: string) => {
+console.log(date);
+      let momentObj = moment(date, 'YYYY-MM-DD hh:mm:ss');
+
+      return moment(momentObj).format('DD MMM yyyy hh:mm');
+
+  },
   getCurrentLocation: async (): Promise<{
     latitude: number;
     longitude: number;
