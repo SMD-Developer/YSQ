@@ -28,6 +28,7 @@ const ReturnProductScreen: React.FC<any> = ({
 
   setQuantities,
   outletId,
+  channelID,
 }) => {
   const {
     salesReturns,
@@ -36,7 +37,7 @@ const ReturnProductScreen: React.FC<any> = ({
     setShowSnackBar,
     showSnackBar,
     errorMessage,
-  } = useDeliveryController(2, outletId);
+  } = useDeliveryController(2, outletId, channelID);
   const renderItem = ({item}: {item: SaleItem}) => (
     <View style={styles.productItem}>
       <Image
@@ -60,7 +61,9 @@ const ReturnProductScreen: React.FC<any> = ({
       <View style={styles.productDetails}>
         <Text style={styles.productName}>{item.product_id[0].name}</Text>
         <Text style={styles.productPrice}>
-          {Const.languageData?.Avl_Stock ?? 'stock'}{": "}{item.quantity}
+          {Const.languageData?.Avl_Stock ?? 'stock'}
+          {': '}
+          {item.quantity}
         </Text>
       </View>
       <View style={styles.quantityContainer}>

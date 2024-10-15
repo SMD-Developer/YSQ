@@ -17,6 +17,7 @@ import {Product} from '../model/product_model';
 import CustomButton from '../../../components/custom_app_button';
 import {Icon} from 'react-native-paper';
 import {Const} from '../../../constants/const_value';
+import {usePosContext} from '../pos_screen';
 
 interface ApplyCouponScreenProps {
   onCouponSelect: (coupon: Promotion | null) => void;
@@ -32,6 +33,7 @@ const ApplyCouponScreen: React.FC<ApplyCouponScreenProps> = ({
   total,
 }) => {
   console.log('products', products);
+  const {foundOutlet} = usePosContext();
 
   const {promotions, loading} = useHomeController();
 
@@ -61,28 +63,37 @@ const ApplyCouponScreen: React.FC<ApplyCouponScreenProps> = ({
           <Text style={{color: 'black'}}> {'No Progucts found'}</Text>
         }
         style={{marginBottom: 10}}
-        renderItem={({item}) => (
-          <View style={styles.productItem}>
-            <Image
-              source={{
-                uri:
-                  item.images?.length > 0
-                    ? item.images[0]
-                    : 'https://via.placeholder.com/100',
-              }}
-              style={styles.productImage}
-            />
-            <View style={styles.productDetails}>
-              <Text style={styles.productName}>{item.name}</Text>
-              <Text style={styles.productPrice}>
-                {Const.user?.currency} {item.product_price.toFixed(2)}
-              </Text>
+        renderItem={({item}) => {
+          var product_price = 0;
+          Object.keys(item?.chanel).forEach(key => {
+            const data = item?.chanel[key];
+            if (foundOutlet?.chanel_id === data?.chanel_id) {
+              product_price = data?.price;
+            }
+          });
+          return (
+            <View style={styles.productItem}>
+              <Image
+                source={{
+                  uri:
+                    item.images?.length > 0
+                      ? item.images[0]
+                      : 'https://via.placeholder.com/100',
+                }}
+                style={styles.productImage}
+              />
+              <View style={styles.productDetails}>
+                <Text style={styles.productName}>{item.name}</Text>
+                <Text style={styles.productPrice}>
+                  {Const.user?.currency} {product_price}
+                </Text>
+              </View>
+              <View style={styles.quantityContainer}>
+                <Text style={styles.quantityText}>{item.quantity || 0}</Text>
+              </View>
             </View>
-            <View style={styles.quantityContainer}>
-              <Text style={styles.quantityText}>{item.quantity || 0}</Text>
-            </View>
-          </View>
-        )}
+          );
+        }}
       />
 
       <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>

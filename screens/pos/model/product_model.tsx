@@ -43,6 +43,17 @@ export interface Product {
   tax_type: string;
   notes: string | null;
   images: any;
+  chanel: {
+    [key: string]: {
+      id: number;
+      price: number;
+      user_id: number;
+      chanel_id: number;
+      product_id: number;
+      created_at: string;
+      updated_at: string;
+    };
+  };
   product_category_name: string;
   brand_name: string;
   barcode_image_url: string;

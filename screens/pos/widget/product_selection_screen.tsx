@@ -33,7 +33,7 @@ const ProductSelectionScreen: React.FC<{
     errorMessage,
     setError,
     setShowSnackBar,
-  } = useDeliveryController(1, foundOutlet?.id!);
+  } = useDeliveryController(1, foundOutlet?.id!, foundOutlet?.chanel_id!);
 
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
     null,
@@ -122,92 +122,105 @@ const ProductSelectionScreen: React.FC<{
           </Text>
         }
         contentContainerStyle={styles.productsContainer}
-        renderItem={({item}) => (
-          <View style={styles.productItem}>
-            <Image
-              source={{
-                uri:
-                  item.images?.length > 0
-                    ? item.images[0]
-                    : 'https://via.placeholder.com/100',
-              }}
-              style={styles.productImage}
-            />
-            <View style={styles.productDetails}>
-              <Text style={styles.productName}>{item.name}</Text>
-              <Text style={styles.productPrice}>
-                {Const.user?.currency} {item.product_price.toFixed(2)}
-              </Text>
-              <Text style={styles.productPrice}>
-                {Const.languageData?.Avl_Stock ?? 'stock'}:{' '}
-                {item.assign_quantity ?? 0}
-              </Text>
-              <Text style={styles.productPrice}>
-                {Const.languageData?.Product_Type ?? 'Unit'}:{' '}
-                {item.product_unit_name.name ?? ''}
-              </Text>
-            </View>
-            <View style={styles.quantityContainer}>
-              <TouchableOpacity
-                style={styles.quantityButton}
-                onPress={() =>
-                  handleQuantityChange(item.main_product_id, false)
-                }>
-                <MaterialIcons name="remove" size={20} color="#fff" />
-              </TouchableOpacity>
-              <TextInput
-                style={styles.quantityText}
-                value={quantities[item.main_product_id]?.toString() ?? '0'}
-                onChangeText={text => {
-                  //console.log('Text:', text);
-                  //console.log('In Stock:', item.in_stock);
-                  if (parseInt(text, 10) > item.assign_quantity) {
-                    //console.log(
-                    //   'Quantity should be less than or equal to stock',
-                    // );
-                    setError(
-                      Const.languageData?.Quantity_less_equal_to_stock ??
-                        'Quantity should be less than or equal to available stock',
-                    );
-                    setShowSnackBar(true); // Set the snackbar to
+        renderItem={({item}) => {
+          var product_price = 0;
+          Object.keys(item?.chanel).forEach(key => {
+            const data = item?.chanel[key];
+            if (foundOutlet?.chanel_id === data?.chanel_id) {
+              product_price = data?.price;
+            }
+          });
+
+          return (
+            <View style={styles.productItem}>
+              <Image
+                source={{
+                  uri:
+                    item.images?.length > 0
+                      ? item.images[0]
+                      : 'https://via.placeholder.com/100',
+                }}
+                style={styles.productImage}
+              />
+              <View style={styles.productDetails}>
+                <Text style={styles.productName}>{item.name}</Text>
+                <Text style={styles.productPrice}>
+                  {Const.user?.currency} {product_price}
+                </Text>
+                <Text style={styles.productPrice}>
+                  {Const.languageData?.Avl_Stock ?? 'stock'}:{' '}
+                  {item.assign_quantity ?? 0}
+                </Text>
+                <Text style={styles.productPrice}>
+                  {Const.languageData?.Product_Type ?? 'Unit'}:{' '}
+                  {item.product_unit_name.name ?? ''}
+                </Text>
+              </View>
+              <View style={styles.quantityContainer}>
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={() =>
+                    handleQuantityChange(item.main_product_id, false)
+                  }>
+                  <MaterialIcons name="remove" size={20} color="#fff" />
+                </TouchableOpacity>
+                <TextInput
+                  style={styles.quantityText}
+                  value={quantities[item.main_product_id]?.toString() ?? '0'}
+                  onChangeText={text => {
+                    //console.log('Text:', text);
+                    //console.log('In Stock:', item.in_stock);
+                    if (parseInt(text, 10) > item.assign_quantity) {
+                      //console.log(
+                      //   'Quantity should be less than or equal to stock',
+                      // );
+                      setError(
+                        Const.languageData?.Quantity_less_equal_to_stock ??
+                          'Quantity should be less than or equal to available stock',
+                      );
+                      setShowSnackBar(true); // Set the snackbar to
+                      handleQuantityChange(
+                        item.main_product_id,
+                        true,
+                        item.assign_quantity,
+                      );
+                      return;
+                    }
                     handleQuantityChange(
                       item.main_product_id,
                       true,
-                      item.assign_quantity,
+                      parseInt(text, 10),
                     );
-                    return;
-                  }
-                  handleQuantityChange(
-                    item.main_product_id,
-                    true,
-                    parseInt(text, 10),
-                  );
-                }}
-                keyboardType="numeric"
-              />
-              {/* <Text style={styles.quantityText}>
+                  }}
+                  keyboardType="numeric"
+                />
+                {/* <Text style={styles.quantityText}>
                 {quantities[item.main_product_id] || 0}
               </Text> */}
-              <TouchableOpacity
-                style={styles.quantityButton}
-                onPress={() => {
-                  if (quantities[item.main_product_id] + 1 > item.assign_quantity) {
-                    setError(
-                      Const.languageData?.Quantity_less_equal_to_stock ??
-                        'Quantity should be less than or equal to available stock',
-                    );
-                    setShowSnackBar(true); // Set the snackbar to
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={() => {
+                    if (
+                      quantities[item.main_product_id] + 1 >
+                      item.assign_quantity
+                    ) {
+                      setError(
+                        Const.languageData?.Quantity_less_equal_to_stock ??
+                          'Quantity should be less than or equal to available stock',
+                      );
+                      setShowSnackBar(true); // Set the snackbar to
 
-                    return;
-                  }
+                      return;
+                    }
 
-                  handleQuantityChange(item.main_product_id, true);
-                }}>
-                <MaterialIcons name="add" size={20} color="#fff" />
-              </TouchableOpacity>
+                    handleQuantityChange(item.main_product_id, true);
+                  }}>
+                  <MaterialIcons name="add" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
+          );
+        }}
       />
     </View>
   );

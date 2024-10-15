@@ -8,6 +8,7 @@ import {Const} from '../../../constants/const_value';
 export const useDeliveryController = (
   screenType: number, // screenType parameter to control which API to call
   outletId?: string,
+  channelID?: any,
 ) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<{id: string; name: string}[]>(
@@ -23,7 +24,7 @@ export const useDeliveryController = (
   const [salesReturns, setSalesReturns] = useState<Sale[]>([]);
 
   const fetchProductsAndCategories = async () => {
-    console.log('Fetching products and categories for outlet:', outletId);
+    console.log('Fetching products and categories for outlet:', outletId, channelID);
     try {
       var user = await User.getUser();
       const [products, categor] = await Promise.all([
@@ -55,7 +56,7 @@ export const useDeliveryController = (
 
   const createSale = async (saleData: any) => {
     try {
-      console.log('Creating sale with data:', saleData);
+
       const saleResponse = await ProductService.createSale(saleData);
       //console.log('Sale response:', saleResponse);
       setSalesLoading(false);
@@ -121,7 +122,7 @@ export const useDeliveryController = (
     } else if (screenType === 2) {
       fetchSalesReturns();
     }
-  }, [screenType, outletId]); // Add screenType to dependencies
+  }, [screenType, outletId, channelID]); // Add screenType to dependencies
 
   return {
     products,

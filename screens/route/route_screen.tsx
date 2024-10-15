@@ -186,6 +186,9 @@ const RouteScreen: React.FC<RouteScreenProps> = ({navigation}) => {
                 <Icon source="store" size={50} color={COLORS.PRIMARY} />
                 <View style={styles.employeeInfo}>
                   <Text style={styles.employeeName}>{item.name}</Text>
+                  <Text style={styles.employeeDate}>
+                    {item?.channelDetails?.name}
+                  </Text>
                   <Text style={styles.employeePhone}>{item.address}</Text>
                   <Text style={styles.employeePhone}>+{item.phone}</Text>
                   <Text style={styles.employeeDate}>{item.assigned_date}</Text>
