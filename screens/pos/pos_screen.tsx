@@ -24,6 +24,7 @@ import Loader from '../../components/custom_loader';
 import {RouteProp} from '@react-navigation/native';
 import {RootStackParamList, ROUTES} from '../../routes/routes_name';
 import {AddOutletModel} from '../outlet/modle/add_outlet_model';
+import CustomSnackbar from '../../components/custom_snackbar.tsx';
 
 type PosScreenRouteProp = RouteProp<RootStackParamList, typeof ROUTES.Pos>;
 
@@ -36,6 +37,9 @@ type CheckInComponentProps = {
   onCheckIn: (selectedOutlet: string) => void;
   foundOutlet: AddOutletModel | null;
   setFoundOutlet: React.Dispatch<React.SetStateAction<AddOutletModel | null>>;
+  setError: React.Dispatch<React.SetStateAction<String | null>>;
+  showSnackBar:boolean;
+  setShowSnackBar:React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const CheckInComponent: React.FC<CheckInComponentProps> = ({
@@ -43,6 +47,9 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
   onCheckIn,
   foundOutlet,
   setFoundOutlet,
+                                                             setError,
+                                                             setShowSnackBar
+
 }) => {
   const {outlets, loading} = useOutletController();
   const [modalVisible, setModalVisible] = useState(false);
@@ -164,6 +171,11 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
               />
               <CustomButton
                 onPress={function (): void {
+                  if(outlet==""){
+                    setError("No customer selected");
+                    setShowSnackBar(true);
+                    return;
+                  }
                   setModalVisible(false);
                 }}
                 title={Const.languageData?.Confirm ?? 'Confirm'}
@@ -197,7 +209,11 @@ const PosScreen: React.FC<PosProps> = ({route}) => {
       Const.selectedOutlet = null;
     }
   }, []);
-
+  const [showSnackBar, setShowSnackBar] = useState<boolean>(false);
+  const [errorMessage, setError] = useState<string | null>(null);
+  // @ts-ignore
+  // @ts-ignore
+  // @ts-ignore
   return (
     <PosContext.Provider value={{foundOutlet}}>
       <View style={styles.safeArea}>
@@ -213,8 +229,18 @@ const PosScreen: React.FC<PosProps> = ({route}) => {
             onCheckIn={handleCheckIn}
             foundOutlet={foundOutlet}
             setFoundOutlet={setFoundOutlet}
+            setError={setError}
+            setShowSnackBar={setShowSnackBar}
+            showSnackBar={showSnackBar}
           />
-
+          <CustomSnackbar
+            visible={showSnackBar}
+            message={errorMessage!}
+            onDismiss={() => setShowSnackBar(false)}
+            actionLabel={Const.languageData?.Close ?? 'Close'}
+            bottomMargin={true}
+            onActionPress={() => setShowSnackBar(false)}
+          />
           {outlet && (
             <View style={{flexGrow: 1, marginHorizontal: 20}}>
               <Tab.Navigator

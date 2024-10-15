@@ -3,19 +3,15 @@ import React, {useEffect, useState} from 'react';
 import {View, StyleSheet} from 'react-native';
 import CustomButton from '../../../components/custom_app_button';
 
-import {ReturnSuccessScreenProps} from './delivery_screen';
 import {ROUTES} from '../../../routes/routes_name';
 import {COLORS} from '../../../constants/colors';
-import {Promotion} from '../../home/models/promotion_model';
 import Stepper from './stepper';
 import PaymentAndDeliveryScreen from './payment_Selection_screen';
 import GiftSelectionScreen from './gift_selection_scree';
 import {useDeliveryController} from '../controller/delivery_controller';
 import CustomSnackbar from '../../../components/custom_snackbar';
 import User from '../../login/models/user_model';
-import {keys} from 'lodash';
 import {format} from 'date-fns';
-import {da} from 'date-fns/locale';
 import {ScrollView} from 'react-native-gesture-handler';
 import {usePosContext} from '../pos_screen';
 import {Const} from '../../../constants/const_value';
@@ -81,6 +77,7 @@ const GiftScreen: React.FC<any> = ({navigation, route}) => {
     setShowSnackBar,
     errorMessage,
     setError,
+    setGiftLoading,
     gifts,
   } = useDeliveryController(3);
 
@@ -148,6 +145,7 @@ const GiftScreen: React.FC<any> = ({navigation, route}) => {
               : Const.languageData?.Next ?? 'Next'
           }
           onPress={async () => {
+            setGiftLoading(true);
             for (const key in quantities) {
               if (quantities[key] === 0) {
                 delete quantities[key];
@@ -164,6 +162,7 @@ const GiftScreen: React.FC<any> = ({navigation, route}) => {
               if (photoUri === null || photoUri === '') {
                 setError('Please select product photo');
                 setShowSnackBar(true);
+                setGiftLoading(false);
                 return;
               }
               const currentDate = new Date();
@@ -173,11 +172,11 @@ const GiftScreen: React.FC<any> = ({navigation, route}) => {
 
               var response = await submitGift({
                 sales_man_id: user?.id,
-                outlet_id: foundOutlet.id,
+                outlet_id: foundOutlet?.id,
                 gift_id: Object.keys(quantities)[0],
                 quantity: Object.values(quantities)[0],
                 dscription: comments,
-                location: foundOutlet?.location??"",
+                location: "",
                 uploaded_date: formattedDate,
                 image: photoUri,
               });

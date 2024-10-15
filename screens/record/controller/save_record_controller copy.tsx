@@ -46,6 +46,7 @@ const useRecordMileageController = () => {
     }
     setLoading(true);
     currentUser = await User.getUser();
+    // @ts-ignore
     const recordMileageData: RecordMileageModel = {
       sale_man_id: currentUser?.id.toString()!,
       type,

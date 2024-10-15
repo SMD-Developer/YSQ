@@ -55,7 +55,6 @@ export const useDeliveryController = (
 
   const createSale = async (saleData: any) => {
     try {
-      setSalesLoading(true);
       console.log('Creating sale with data:', saleData);
       const saleResponse = await ProductService.createSale(saleData);
       //console.log('Sale response:', saleResponse);
@@ -73,7 +72,6 @@ export const useDeliveryController = (
   };
   const createReturnSale = async (saleData: any) => {
     try {
-      setReturnLoading(true);
       //console.log('Creating sale with data:', saleData);
       const saleResponse = await ProductService.createReturnSale(saleData);
       return saleResponse;
@@ -87,7 +85,6 @@ export const useDeliveryController = (
 
   const submitGift = async (saleData: any) => {
     try {
-      setGiftLoading(true);
       const saleResponse = await ProductService.submitGift(saleData);
       if (saleResponse) {
         setError('Gift Submitted');
@@ -140,6 +137,8 @@ export const useDeliveryController = (
     setError,
     salesReturns,
     setSalesLoading,
+    setReturnLoading,
+    setGiftLoading,
     salesLoading,
     createReturnSale,
     returnLoading,

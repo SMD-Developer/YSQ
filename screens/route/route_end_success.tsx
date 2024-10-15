@@ -1,13 +1,35 @@
-import React from 'react';
-import {View, Text, StyleSheet, StatusBar} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, StatusBar, Image, TouchableOpacity} from 'react-native';
 import SuccessIcon from '../../assets/success-icon.svg';
 import CustomButton from '../../components/custom_app_button';
 import {Const} from '../../constants/const_value';
 import {ROUTES} from '../../routes/routes_name';
 import {CommonActions} from '@react-navigation/native';
+import {ImageLibraryOptions, ImagePickerResponse, launchCamera} from 'react-native-image-picker';
 
 const MapRouteSuccessScreen: React.FC<any> = ({navigation, route}) => {
   const outletId = route.params?.outletId;
+  const [image, setImage] = useState<string | null>(null);
+  const pickImage = async (
+
+  ) => {
+
+    const options: ImageLibraryOptions = {
+      mediaType: 'photo', // Can be 'photo' or 'video'
+      quality: 0.3,
+      selectionLimit: 1,
+    };
+
+    launchCamera(options, (response: ImagePickerResponse) => {
+      if (response.didCancel) {
+        //console.log('User cancelled image picker');
+      } else if (response.errorMessage) {
+        //console.log('ImagePicker Error: ', response.errorMessage);
+      } else {
+        setImage(response.assets![0].uri!);
+      }
+    });
+  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="white" barStyle={'dark-content'} />
@@ -20,6 +42,18 @@ const MapRouteSuccessScreen: React.FC<any> = ({navigation, route}) => {
         {Const.languageData?.Succefully_reached_outlet_location ??
           'You have successfully completed the route and reached the outlet location.'}
       </Text>
+
+      <TouchableOpacity
+        style={styles.imagePlaceholder}
+        onPress={() => pickImage()}>
+        {image ? (
+          <Image source={{uri: image}} style={styles.image} />
+        ) : (
+          <Text style={styles.placeholderText}>
+            {Const.languageData?.Tap_to_upload ?? 'Tap to select to upload'}
+          </Text>
+        )}
+      </TouchableOpacity>
 
       <CustomButton
         onPress={function (): void {
@@ -52,6 +86,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 20,
   },
+  imagePlaceholder: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 30,
+    backgroundColor: '#f0f0f0',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  placeholderText: {
+    color: '#999',
+    fontSize: 16,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -64,6 +117,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 60,
     marginHorizontal: 20,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
   },
   button: {
     borderRadius: 30,

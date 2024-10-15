@@ -15,9 +15,36 @@ import {Sale} from '../pos/model/sales_mode';
 import {useNavigation} from '@react-navigation/native';
 import FilterDialog from '../../components/custom_filter';
 import {parseISO} from 'date-fns';
+import {Option} from '../home/home_screen.tsx';
+import useHomeController from '../home/controller/home_controller.tsx';
 
 const SalesScreen: React.FC<any> = () => {
   const navigation = useNavigation();
+  const {
+    homeData,
+  } = useHomeController();
+  const bottomOptions: Option[] = [
+    {
+      id: '1',
+      title: Const.languageData?.Todays_Sale ?? "Today's Sale",
+      value: `${Const.user?.currency} ${homeData?.today_sales ?? 0}`,
+      iconName: 'cart',
+      borderColor: 'rgb(217,239,253)',
+      backgroundColor: 'rgb(217,239,253)',
+      navigationFunc: () => {},
+    }, // Peach
+    {
+      id: '2',
+      title: Const.languageData?.Total_Sale ?? 'Total Sale',
+      value: `${Const.user?.currency}  ${homeData?.total_sales ?? 0}`,
+      iconName: 'cart-outline',
+      borderColor: 'rgb(235,234,247)',
+      backgroundColor: 'rgb(235,234,247)',
+      navigationFunc: () => {},
+    }, // Lavender
+    // Light Green
+  ];
+
   const {
     loading,
     visible,
@@ -43,6 +70,7 @@ const SalesScreen: React.FC<any> = () => {
     );
     var paymentMethod = payment.length > 0 ? payment[0].name : '-';
 
+    // @ts-ignore
     return (
       <TouchableOpacity
         style={styles.tableRow}
@@ -140,6 +168,27 @@ const SalesScreen: React.FC<any> = () => {
     await onReferesh();
     setRefreshing(false);
   }, []);
+  // @ts-ignore
+  const renderOption = ({item}) => (
+    <TouchableOpacity
+      onPress={item.navigationFunc}
+      style={[
+        styles.optionBox,
+        {
+          backgroundColor: item.backgroundColor,
+          borderColor: item.borderColor,
+          borderWidth: 1,
+        },
+      ]}>
+      <View style={styles.iconContainer}>
+        <Icon source={item.iconName} size={25} color="#000" />
+      </View>
+      <Text style={styles.optionTitle}>{item.title}</Text>
+      <View style={[styles.titleBox, {backgroundColor: COLORS.PRIMARY}]}>
+        <Text style={styles.optionValue}>{item.value}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.fullContainer}>
@@ -148,6 +197,7 @@ const SalesScreen: React.FC<any> = () => {
         showBackButton={false}
         isPrimary={true}
       />
+
       {loading ? (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <Loader />
@@ -169,7 +219,22 @@ const SalesScreen: React.FC<any> = () => {
             />
             <FilterDialog onFilterApply={handleFilterApply} />
           </View>
+          <View style={{height:"150px"}}>
+            <FlatList
+              style={{
+                marginHorizontal: 20,
 
+                height
+                  :"150px",
+              }}
+              data={bottomOptions}
+              renderItem={renderOption}
+              keyExtractor={item => item.id}
+              numColumns={2} // Updated to 3 columns
+              columnWrapperStyle={styles.row}
+              scrollEnabled={false}
+            />
+          </View>
           <FlatList
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -319,6 +384,44 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingBottom: 180,
     flexGrow: 1,
+  },
+  row: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+  },
+  optionBox: {
+    flex: 1,
+    height: 150,
+    borderRadius: 10,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    width:150
+,    alignItems: 'center',
+    margin: 5, // Adds spacing between the items
+  },
+  iconContainer: {
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 25,
+    marginBottom: 10,
+  },
+  optionTitle: {
+    fontSize: 13,
+    color: 'grey',
+    textAlign: 'center',
+  },
+  optionValue: {
+    fontSize: 14,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  titleBox: {
+    borderRadius: 10,
+    marginTop: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: 'red',
   },
 });
 
