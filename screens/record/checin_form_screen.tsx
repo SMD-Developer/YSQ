@@ -98,7 +98,7 @@ const CheckInFormScreen: React.FC<CheckInScreenProps> = ({
 
           <CustomButton
             loading={loading}
-            title={Const.languageData?.Save ?? 'Save'}
+            title={Const.languageData?.Upload_photo ?? 'Save'}
             buttonStyle={{marginTop: 40}}
             onPress={async () => {
               var data = await onSave(isCheckIn ? 'checkin' : 'ckeckout',customerId);
@@ -110,6 +110,8 @@ const CheckInFormScreen: React.FC<CheckInScreenProps> = ({
                   DeviceEventEmitter.emit('event.closeevent');
                 }
                 navigation.goBack(); // Na
+
+                navigation.navigate(ROUTES.CheckInSuccess,{type:isCheckIn?"Check In":"Check out"})
               }
             }}
           />

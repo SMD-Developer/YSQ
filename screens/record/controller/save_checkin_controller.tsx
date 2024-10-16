@@ -8,6 +8,7 @@ import {
 } from 'react-native-image-picker';
 import User from '../../login/models/user_model';
 import { Const } from '../../../constants/const_value';
+import NetInfo from '@react-native-community/netinfo';
 
 const useCheckInController = () => {
   const [visible, setVisible] = useState<boolean>(false);
@@ -48,7 +49,14 @@ const useCheckInController = () => {
     currentUser = await User.getUser();
     let loaction: any;
     try {
-      loaction = await Const.getCurrentLocationName();
+      const networkState = await NetInfo.fetch();
+
+      if(networkState.isConnected) {
+        loaction = await Const.getCurrentLocationName();
+      }
+      else{
+        loaction="offline";
+      }
       console.log(loaction);
     } catch (e) {
       loaction = '';

@@ -8,7 +8,7 @@ import NetInfo, {
 } from '@react-native-community/netinfo';
 
 const RecordMileageService = {
-   formatDate :() => {
+  formatDate: () => {
     const today = new Date();
 
     const day = String(today.getDate()).padStart(2, '0');
@@ -45,7 +45,10 @@ const RecordMileageService = {
       formData.append('type', data.type);
       formData.append('mileage', data.mileage);
       formData.append('location', data.location);
-      formData.append('uploaded_date', RecordMileageService.formatDate().toString());
+      formData.append(
+        'uploaded_date',
+        RecordMileageService.formatDate().toString(),
+      );
 
       if (data.vehicle_image) {
         formData.append('vehicle_image', {
@@ -74,10 +77,8 @@ const RecordMileageService = {
         },
       );
 
-
       return response.data;
     } catch (error) {
-
       if (axios.isAxiosError(error)) {
         throw new Error(error.response?.data?.message || 'Failed');
       } else {
@@ -101,7 +102,7 @@ const RecordMileageService = {
           },
         },
       );
-      console.log('response',  response.data);
+      console.log('response', response.data);
       // Handle the response
       if (response.status !== 200) {
         throw new Error('Failed to upload mileage');
@@ -122,24 +123,27 @@ const RecordMileageService = {
   syncMileageData: async () => {
     try {
       const unsyncedMileageData = realmObject.objects('Mileage');
-  
+
       if (unsyncedMileageData.length === 0) {
         console.log('No mileage data to sync');
         return;
       }
-  
+
       var getTokenHeader = await Const.getTokenHeaderWithFOrmType();
-  
+
       // Loop through unsynced mileage data
       for (let i = 0; i < unsyncedMileageData.length; i++) {
         const data = unsyncedMileageData[i];
-  
+
         const formData = new FormData();
         formData.append('sales_man_id', data.sale_man_id);
         formData.append('type', data.type);
         formData.append('mileage', data.mileage);
-        formData.append('location', data.location??"");
-        formData.append('uploaded_date', RecordMileageService.formatDate().toString());
+        formData.append('location', data.location ?? '');
+        formData.append(
+          'uploaded_date',
+          RecordMileageService.formatDate().toString(),
+        );
 
         if (data.vehicle_image) {
           formData.append('vehicle_image', {
@@ -148,7 +152,7 @@ const RecordMileageService = {
             uri: data.vehicle_image,
           });
         }
-  
+
         if (data.mileage_image) {
           formData.append('mileage_image', {
             type: 'image/jpg',
@@ -156,7 +160,7 @@ const RecordMileageService = {
             uri: data.mileage_image,
           });
         }
-  
+
         // Try uploading the mileage data
         const response = await axios.post(
           `${Const.BASE_URL}api/m1/upload_mileage`,
@@ -167,7 +171,7 @@ const RecordMileageService = {
             },
           },
         );
-  
+
         if (response.status === 200) {
           // Remove the synced data from Realm
           realmObject.write(() => {
@@ -180,25 +184,48 @@ const RecordMileageService = {
       console.log('Error syncing mileage data:', error);
     }
   },
+
   checkIn: async (data: {
     sale_man_id: string;
     customer_id: string;
     image: string;
     location: string;
-    type:string;
-
+    type: string;
   }) => {
     try {
+      console.log(data);
+      // Check network status
       const networkState = await NetInfo.fetch();
 
+      // Create Realm instance
 
-      // If network is available, proceed with the API request
-      var getTokenHeader = await Const.getTokenHeaderWithFOrmType();
+      if (!networkState.isConnected) {
+        // Store the request data in Realm if offline
+        realmObject.write(() => {
+          realmObject.create('CheckIn', {
+            sale_man_id: data.sale_man_id.toString(),
+            customer_id: data.customer_id.toString(),
+            image: data.image,
+            location: data.location,
+            type: data.type,
+            uploaded_date: RecordMileageService.formatDate().toString(),
+          });
+        });
+
+        console.log('Data saved to Realm for later sync');
+        return;
+      }
+
+      // If online, proceed with the API request
+      const getTokenHeader = await Const.getTokenHeaderWithFOrmType();
       const formData = new FormData();
       formData.append('salesman_id', data.sale_man_id);
       formData.append('customer_id', data.customer_id);
       formData.append('location', data.location);
-      formData.append('uploaded_date', RecordMileageService.formatDate().toString());
+      formData.append(
+        'uploaded_date',
+        RecordMileageService.formatDate().toString(),
+      );
 
       if (data.image) {
         formData.append('image', {
@@ -210,8 +237,9 @@ const RecordMileageService = {
 
       console.log(formData);
       const response = await axios.post(
-        data.type=="checkin"?
-        `${Const.BASE_URL}api/m1/check-in`:`${Const.BASE_URL}api/m1/check-out`,
+        data.type === 'checkin'
+          ? `${Const.BASE_URL}api/m1/check-in`
+          : `${Const.BASE_URL}api/m1/check-out`,
         formData,
         {
           headers: {
@@ -220,15 +248,69 @@ const RecordMileageService = {
         },
       );
 
-console.log('response',  response.data);
+      console.log('response', response.data);
       return response.data;
     } catch (error) {
-
+      console.log(error.message);
       if (axios.isAxiosError(error)) {
         throw new Error(error.response?.data?.message || 'Failed');
       } else {
         throw new Error('An unexpected error occurred. Please try again.');
       }
+    }
+  },
+  syncCheckIns: async () => {
+    try {
+      const networkState = await NetInfo.fetch();
+
+      if (!networkState.isConnected) {
+        console.log('Device is still offline, skipping sync');
+        return;
+      }
+
+      const unsyncedCheckIns = realmObject.objects('CheckIn');
+
+      unsyncedCheckIns.forEach(async checkIn => {
+        try {
+          const getTokenHeader = await Const.getTokenHeaderWithFOrmType();
+          const formData = new FormData();
+          formData.append('salesman_id', checkIn.sale_man_id);
+          formData.append('customer_id', checkIn.customer_id);
+          formData.append('location', checkIn.location);
+          formData.append('uploaded_date', checkIn.uploaded_date);
+
+          if (checkIn.image) {
+            formData.append('image', {
+              type: 'image/jpg',
+              name: 'image.jpg',
+              uri: checkIn.image,
+            });
+          }
+
+          const response = await axios.post(
+            checkIn.type === 'checkin'
+              ? `${Const.BASE_URL}api/m1/check-in`
+              : `${Const.BASE_URL}api/m1/check-out`,
+            formData,
+            {
+              headers: {
+                ...getTokenHeader,
+              },
+            },
+          );
+
+          console.log('Synced check-in:', response.data);
+
+          // Remove synced record from Realm
+          realmObject.write(() => {
+            realmObject.delete(checkIn);
+          });
+        } catch (syncError) {
+          console.error('Failed to sync check-in:', syncError);
+        }
+      });
+    } catch (error) {
+      console.error('Sync failed:', error);
     }
   },
 };

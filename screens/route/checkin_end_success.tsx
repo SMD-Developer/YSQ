@@ -7,61 +7,31 @@ import {ROUTES} from '../../routes/routes_name';
 import {CommonActions} from '@react-navigation/native';
 import {ImageLibraryOptions, ImagePickerResponse, launchCamera} from 'react-native-image-picker';
 
-const MapRouteSuccessScreen: React.FC<any> = ({navigation, route}) => {
-  const outletId = route.params?.outletId;
-  const [image, setImage] = useState<string | null>(null);
-  const pickImage = async (
+const CheckInSuccessScreen: React.FC<any> = ({navigation, route}) => {
+  const type = route.params?.type;
 
-  ) => {
 
-    const options: ImageLibraryOptions = {
-      mediaType: 'photo', // Can be 'photo' or 'video'
-      quality: 0.3,
-      selectionLimit: 1,
-    };
-
-    launchCamera(options, (response: ImagePickerResponse) => {
-      if (response.didCancel) {
-        //console.log('User cancelled image picker');
-      } else if (response.errorMessage) {
-        //console.log('ImagePicker Error: ', response.errorMessage);
-      } else {
-        setImage(response.assets![0].uri!);
-      }
-    });
-  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="white" barStyle={'dark-content'} />
       <SuccessIcon width={130} height={130} style={{marginBottom: 30}} />
 
       <Text style={styles.title}>
-        {Const.languageData?.Route_completed ?? 'Route Completed'}
+        { 'Completed'}
       </Text>
       <Text style={styles.message}>
-        {Const.languageData?.Succefully_reached_outlet_location ??
-          'You have successfully completed the route and reached the outlet location.'}
+        {
+          `${type} image uploaded successfully`}
       </Text>
 
 
       <CustomButton
         onPress={function (): void {
           //console.log('outletId', outletId);
-          Const.selectedOutlet = outletId;
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0, // The index of the route to make active
-              routes: [
-                {
+         navigation.goBack();
 
-                  name: ROUTES.DrawerScreen,
-                  params: {initialRoute: 'Pos', outletId: outletId},
-                },
-              ], // Array of routes to reset to, with the desired screen
-            }),
-          );
         }}
-        title={Const.languageData?.Checkin_to_outlet ?? 'Go Back'}
+        title={ 'Continue'}
       />
     </View>
   );
@@ -129,4 +99,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MapRouteSuccessScreen;
+export default CheckInSuccessScreen;

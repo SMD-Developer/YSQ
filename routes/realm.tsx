@@ -248,6 +248,17 @@ const AreaSchema = {
     name: 'string',
   },
 };
+const CheckInSchema = {
+  name: 'CheckIn',
+  properties: {
+    sale_man_id: 'string',
+    customer_id: 'string',
+    image: 'string',
+    location: 'string',
+    type: 'string',
+    uploaded_date: 'string',
+  },
+};
 
 // Define schema for storing channel list
 const ChannelSchema = {
@@ -265,6 +276,7 @@ const realmObject = new Realm({
     AreaSchema,
     ChannelSchema,
     OutletSchema,
+    CheckInSchema,
     ProductCategorySchema,
     PromotionSchema,
     GiftSchema,

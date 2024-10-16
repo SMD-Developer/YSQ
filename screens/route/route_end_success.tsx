@@ -43,17 +43,6 @@ const MapRouteSuccessScreen: React.FC<any> = ({navigation, route}) => {
           'You have successfully completed the route and reached the outlet location.'}
       </Text>
 
-      <TouchableOpacity
-        style={styles.imagePlaceholder}
-        onPress={() => pickImage()}>
-        {image ? (
-          <Image source={{uri: image}} style={styles.image} />
-        ) : (
-          <Text style={styles.placeholderText}>
-            {Const.languageData?.Tap_to_upload ?? 'Tap to select to upload'}
-          </Text>
-        )}
-      </TouchableOpacity>
 
       <CustomButton
         onPress={function (): void {

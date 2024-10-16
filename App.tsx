@@ -41,6 +41,7 @@ import OutletService from './screens/outlet/service/outlet_service';
 import CashInOUtScreen from './screens/home/cash_in_out_screen';
 import StockInOUtScreen from './screens/home/stock_in_out_screen copy';
 import CheckInFormScreen from './screens/record/checin_form_screen.tsx';
+import CheckInSuccessScreen from './screens/route/checkin_end_success.tsx';
 
 const Stack = createNativeStackNavigator();
 
@@ -48,13 +49,20 @@ function App() {
   const wasOffline = React.useRef<boolean | null>(false); // Track previous network state
 
   React.useEffect(() => {
-   
+    // NetInfo.fetch = async (): Promise<NetInfoState> => ({
+    //   type: NetInfoStateType.unknown, // Use the correct enum for the 'type'
+    //   isConnected: false,
+    //   isInternetReachable: null, // Can be boolean or null
+    //   details: null, // No details when there's no connection
+    //   isWifiEnabled: false, // If needed, set to false for no Wi-Fi
+    // });
     // Sync sales when the app starts
     ProductService.syncRealmSales();
     ProductService.syncGift();
     ProductService.syncReturnSales();
     RecordMileageService.syncMileageData();
     OutletService.syncOutletData();
+    RecordMileageService.syncCheckIns();
 
     // Get initial network state before setting up the listener
     NetInfo.fetch().then(netInfoState => {
@@ -83,6 +91,7 @@ function App() {
       ProductService.syncReturnSales();
       RecordMileageService.syncMileageData();
       OutletService.syncOutletData();
+      RecordMileageService.syncCheckIns();
   
     }
 
@@ -112,6 +121,7 @@ function App() {
         />
         <Stack.Screen name={ROUTES.Country} component={CountryScreen} />
         <Stack.Screen name={ROUTES.Login} component={LoginScreen} />
+        <Stack.Screen name={ROUTES.CheckInSuccess} component={CheckInSuccessScreen} />
         <Stack.Screen
           name={ROUTES.RecordSuccessScreen}
           component={RecordSuccessScreen}

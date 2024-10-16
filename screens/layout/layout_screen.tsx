@@ -147,9 +147,9 @@ const LayoutScreen: React.FC<LayoutScreenProps> = ({route}) => {
         position="CIRCLE"
 
         component={PosScreen}
-        options={{
-          unmountOnBlur: true, // This ensures the component is unmounted when the tab loses focus
-        }}
+        // options={{
+        //   unmountOnBlur: true, // This ensures the component is unmounted when the tab loses focus
+        // }}
         initialParams={{outletId: outletId}}
       />
       <CurvedBottomBar.Screen

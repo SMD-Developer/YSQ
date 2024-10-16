@@ -38,6 +38,7 @@ export const ROUTES = {
   AddOutletSuccessScreen: 'AddOutletSuccessScreen',
   PosScreen: 'PosScreen',
   Delivery: 'Delivery',
+  CheckInSuccess: 'CheckInSuccess',
   MapRouteSuccessScreen: 'MapRouteSuccessScreen',
   ProductListScreen: 'ProductListScreen',
   SaleHistoryScreen: 'SaleHistoryScreen',
@@ -48,6 +49,7 @@ export const ROUTES = {
 
 export type RootStackParamList = {
   Splash: undefined;
+  CheckInSuccess:{type:string};
   CashHistory: undefined;
   GiftHistoryScreen: undefined;
   MileageHistory: undefined;
