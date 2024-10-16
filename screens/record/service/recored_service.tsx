@@ -8,6 +8,15 @@ import NetInfo, {
 } from '@react-native-community/netinfo';
 
 const RecordMileageService = {
+   formatDate :() => {
+    const today = new Date();
+
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = today.getFullYear();
+
+    return `${day}-${month}-${year}`;
+  },
   uploadMileage: async (data: RecordMileageModel) => {
     try {
       const networkState = await NetInfo.fetch();
@@ -21,6 +30,7 @@ const RecordMileageService = {
             mileage: data.mileage,
             vehicle_image: data.vehicle_image || null,
             mileage_image: data.mileage_image || null,
+            location: data.location || null,
           });
         });
 
@@ -34,6 +44,8 @@ const RecordMileageService = {
       formData.append('sales_man_id', data.sale_man_id);
       formData.append('type', data.type);
       formData.append('mileage', data.mileage);
+      formData.append('location', data.location);
+      formData.append('uploaded_date', RecordMileageService.formatDate().toString());
 
       if (data.vehicle_image) {
         formData.append('vehicle_image', {
@@ -51,6 +63,7 @@ const RecordMileageService = {
         });
       }
 
+      console.log(formData);
       const response = await axios.post(
         `${Const.BASE_URL}api/m1/upload_mileage`,
         formData,
@@ -61,11 +74,10 @@ const RecordMileageService = {
         },
       );
 
-      if (response.status !== 200) {
-        throw new Error('Failed to upload mileage');
-      }
+
       return response.data;
     } catch (error) {
+
       if (axios.isAxiosError(error)) {
         throw new Error(error.response?.data?.message || 'Failed');
       } else {
@@ -89,7 +101,7 @@ const RecordMileageService = {
           },
         },
       );
-      //console.log('response', response);
+      console.log('response',  response.data);
       // Handle the response
       if (response.status !== 200) {
         throw new Error('Failed to upload mileage');
@@ -126,7 +138,9 @@ const RecordMileageService = {
         formData.append('sales_man_id', data.sale_man_id);
         formData.append('type', data.type);
         formData.append('mileage', data.mileage);
-  
+        formData.append('location', data.location??"");
+        formData.append('uploaded_date', RecordMileageService.formatDate().toString());
+
         if (data.vehicle_image) {
           formData.append('vehicle_image', {
             type: 'image/jpg',

@@ -248,7 +248,9 @@ const OutletService = {
           },
         );
 
-        const outletsData = response.data.data; // Assuming your API response returns an array of outlets in data
+        console.log(response.data)
+        const outletsData = response.data.data;
+        console.log("testing",outletsData)// Assuming your API response returns an array of outlets in data
 
         // Store data in Realm
         if (allData === false) {

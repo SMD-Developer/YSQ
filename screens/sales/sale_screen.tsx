@@ -1,5 +1,5 @@
 import React, {useState, useCallback} from 'react';
-import {StyleSheet, View, Text, FlatList, RefreshControl} from 'react-native';
+import {StyleSheet, View, Text, FlatList, RefreshControl, ScrollViewComponent, ScrollView} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomTextField from '../../components/custom_text_field';
 import {COLORS} from '../../constants/colors';
@@ -153,8 +153,11 @@ const SalesScreen: React.FC<any> = () => {
           <Loader />
         </View>
       ) : (
-        <View>
+        <ScrollView  refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
           <View
+
             style={{
               flexDirection: 'row',
             }}>
@@ -171,9 +174,8 @@ const SalesScreen: React.FC<any> = () => {
           </View>
 
           <FlatList
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
+            scrollEnabled={false}
+
             data={filteredData}
             renderItem={renderSaleItem}
             ListEmptyComponent={
@@ -184,10 +186,10 @@ const SalesScreen: React.FC<any> = () => {
             }
             onEndReached={fetchNextPage} // Trigger next page load
             onEndReachedThreshold={0.5}
-            keyExtractor={item => item.attributes.reference_code.toString()}
+            keyExtractor={(item,index) => item.attributes.reference_code.toString()+index}
             contentContainerStyle={styles.listContainer}
           />
-        </View>
+        </ScrollView>
       )}
       <CustomSnackbar
         visible={visible}
@@ -317,7 +319,7 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 15,
     paddingVertical: 10,
-    paddingBottom: 180,
+    paddingBottom: 50,
     flexGrow: 1,
   },
 });

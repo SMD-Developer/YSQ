@@ -7,13 +7,12 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';  // Import icon package
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList, ROUTES} from '../../routes/routes_name';
 import CustomTextField from '../../components/custom_text_field';
-
 import CustomButton from '../../components/custom_app_button';
 import MainAppBar from '../../components/custom_main_app_bar';
-
 import CustomSnackbar from '../../components/custom_snackbar';
 import {RouteProp} from '@react-navigation/native';
 import useRecordMileageController from './controller/save_record_controller copy';
@@ -34,9 +33,9 @@ interface RecordFormScreenProps {
 }
 
 const RecordFormScreen: React.FC<RecordFormScreenProps> = ({
-  navigation,
-  route,
-}) => {
+                                                             navigation,
+                                                             route,
+                                                           }) => {
   let isStart: boolean = route.params.screenType === 1;
   const {
     startMileage,
@@ -52,6 +51,21 @@ const RecordFormScreen: React.FC<RecordFormScreenProps> = ({
     onSave,
     pickImage,
   } = useRecordMileageController();
+
+  const renderImageWithDeleteIcon = (
+    imageUri: string,
+    onDelete: () => void
+  ) => {
+    return (
+      <View style={styles.imageContainer}>
+        <Image source={{uri: imageUri}} style={styles.image} />
+        <TouchableOpacity style={styles.deleteIcon} onPress={onDelete}>
+          <Icon name="delete" size={24} color="red" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.safeArea}>
       <MainAppBar
@@ -65,17 +79,17 @@ const RecordFormScreen: React.FC<RecordFormScreenProps> = ({
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <CustomTextField
+            keyboardType={"numeric"}
             value={startMileage}
-            placeholder={`${
+            placeholder={isStart
+              ? Const.languageData?.Enter_Start_Mileage ?? 'Start'
+              : Const.languageData?.Enter_End_Mileage ?? 'End'
+            }
+            label={
               isStart
-                ? Const.languageData?.Enter_Start_Mileage ?? 'Start'
-                : Const.languageData?.Enter_End_Mileage ?? 'End'
-            }`}
-            label={`${
-              isStart
-                ? Const.languageData?.Start_mileage ?? 'Start'
-                : Const.languageData?.End_Mileage ?? 'End'
-            }`}
+              ? Const.languageData?.Start_mileage ?? 'Start'
+              : Const.languageData?.End_Mileage ?? 'End'
+            }
             onChangeText={function (text: string): void {
               setStartMileage(text);
             }}
@@ -88,13 +102,16 @@ const RecordFormScreen: React.FC<RecordFormScreenProps> = ({
             style={styles.imagePlaceholder}
             onPress={() => pickImage(setVehicleImage)}>
             {vehicleImage ? (
-              <Image source={{uri: vehicleImage}} style={styles.image} />
+              renderImageWithDeleteIcon(vehicleImage, () =>
+                setVehicleImage(null)
+              )
             ) : (
               <Text style={styles.placeholderText}>
                 {Const.languageData?.Tap_to_upload ?? 'Tap to select to upload'}
               </Text>
             )}
           </TouchableOpacity>
+
           <Text style={styles.label}>
             {Const.languageData?.Mileage_Image_Showing_Current_Record ??
               'Mileage Image'}
@@ -103,13 +120,16 @@ const RecordFormScreen: React.FC<RecordFormScreenProps> = ({
             style={styles.imagePlaceholder}
             onPress={() => pickImage(setMileageImage)}>
             {mileageImage ? (
-              <Image source={{uri: mileageImage}} style={styles.image} />
+              renderImageWithDeleteIcon(mileageImage, () =>
+                setMileageImage(null)
+              )
             ) : (
               <Text style={styles.placeholderText}>
                 {Const.languageData?.Tap_to_upload ?? 'Tap to select to upload'}
               </Text>
             )}
           </TouchableOpacity>
+
           <CustomButton
             loading={loading}
             title={Const.languageData?.Save ?? 'Save'}
@@ -139,28 +159,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  appBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    backgroundColor: '#FFF',
-    textAlign: 'center',
-    marginBottom: 20,
-    elevation: 4,
-    shadowColor: '#000', // Shadow color
-    shadowOffset: {width: 0, height: 2}, // Offset for shadow
-    shadowOpacity: 0.1, // Shadow opacity
-    shadowRadius: 4,
-    paddingBottom: 10,
-  },
-  appBarTitle: {
-    color: 'grey',
-    fontSize: 21,
-    fontWeight: 'bold',
-
-    justifyContent: 'center',
-  },
   container: {
     flex: 1,
     padding: 20,
@@ -171,20 +169,6 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 10,
     fontWeight: '600',
-  },
-  textField: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    padding: 15,
-    fontSize: 16,
-    backgroundColor: '#fff',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
   },
   imagePlaceholder: {
     borderWidth: 1,
@@ -205,10 +189,23 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 16,
   },
+  imageContainer: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+  },
   image: {
     width: '100%',
     height: '100%',
     borderRadius: 10,
+  },
+  deleteIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 50,
+    padding: 5,
   },
 });
 

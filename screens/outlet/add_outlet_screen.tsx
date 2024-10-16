@@ -82,6 +82,14 @@ const AddOutletScreen: React.FC<any> = ({navigation, route}) => {
             ))}
           </Picker>
         </View> */}
+        <CustomTextField
+          label={Const.languageData?.Country ?? 'Country'}
+          value={outlet.country}
+          onChangeText={text => setOutlet({...outlet, country: text})}
+          placeholder={Const.languageData?.Country ?? 'Enter country'}
+          style={styles.input}
+          editable={false}
+        />
         <Text style={styles.mapLabel}>{Const.languageData?.Area??"Select Area"} </Text>
         <View style={styles.pickerContainer}>
           <Picker
@@ -172,14 +180,7 @@ const AddOutletScreen: React.FC<any> = ({navigation, route}) => {
           keyboardType="phone-pad"
           style={styles.input}
         />
-        <CustomTextField
-          label={Const.languageData?.Country ?? 'Country'}
-          value={outlet.country}
-          onChangeText={text => setOutlet({...outlet, country: text})}
-          placeholder={Const.languageData?.Country ?? 'Enter country'}
-          style={styles.input}
-          editable={false}
-        />
+
         <CustomTextField
           label={Const.languageData?.Address ?? 'Address'}
           value={outlet.address}
@@ -252,7 +253,7 @@ const AddOutletScreen: React.FC<any> = ({navigation, route}) => {
             }}
             styles={{
               textInputContainer: styles.textInputContainer,
-              textInput: styles.textInput,
+              // // textInput: styles.textInput,
               description: styles.textInput,
               predefinedPlacesDescription: styles.predefinedPlacesDescription,
             }}
@@ -386,8 +387,9 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   textInput: {
-    height: 40,
-    fontSize: 16,
+    // height: 40,
+    // width:"100%",
+    // fontSize: 16,
     color: 'black',
   },
   predefinedPlacesDescription: {
