@@ -82,6 +82,7 @@ const ReturnScreen: React.FC<any> = ({navigation, route}) => {
     setShowSnackBar,
     errorMessage,
     setError,
+    setReturnLoading,
   } = useDeliveryController(
     3,
     foundOutlet?.id ?? '0',
