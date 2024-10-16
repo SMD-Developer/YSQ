@@ -95,6 +95,7 @@ const LayoutScreen: React.FC<LayoutScreenProps> = ({route}) => {
   };
   //console.log('initialScreen', outletId);
   return (
+
     <CurvedBottomBar.Navigator
     
       type="DOWN"

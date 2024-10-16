@@ -28,6 +28,7 @@ export const ROUTES = {
   RecordDetails: 'RecordDetails',
   AllPromotions: 'AllPromotions',
   RecordFormScreen: 'RecordFormScreen',
+  CheckInFormScreen: 'CheckInFormScreen',
   MapScreen: 'MapScreen',
   Pos: 'Pos',
   RouteScreen: 'RouteScreen',
@@ -78,6 +79,7 @@ export type RootStackParamList = {
   RecordSuccessScreen: undefined;
   AllRecord: undefined;
   RecordFormScreen: {screenType?: number};
+  CheckInFormScreen: {screenType?: number,customerId: string};
   MapScreen: {
     long: string;
     lat: string;

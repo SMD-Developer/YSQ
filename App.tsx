@@ -40,6 +40,7 @@ import RecordMileageService from './screens/record/service/recored_service';
 import OutletService from './screens/outlet/service/outlet_service';
 import CashInOUtScreen from './screens/home/cash_in_out_screen';
 import StockInOUtScreen from './screens/home/stock_in_out_screen copy';
+import CheckInFormScreen from './screens/record/checin_form_screen.tsx';
 
 const Stack = createNativeStackNavigator();
 
@@ -133,6 +134,7 @@ function App() {
           component={ProductDetailScreen}
         />
         <Stack.Screen name={ROUTES.Profile} component={ProfileScreen} />
+        <Stack.Screen name={ROUTES.CheckInFormScreen} component={CheckInFormScreen} />
         <Stack.Screen name={ROUTES.Layout} component={LayoutScreen} />
         <Stack.Screen name={ROUTES.DrawerScreen} component={DrawerNavigator} />
         <Stack.Screen

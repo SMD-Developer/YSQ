@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  ScrollView,
+  ScrollView, DeviceEventEmitter,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';  // Import icon package
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -17,40 +17,39 @@ import CustomSnackbar from '../../components/custom_snackbar';
 import {RouteProp} from '@react-navigation/native';
 import useRecordMileageController from './controller/save_record_controller copy';
 import {Const} from '../../constants/const_value';
+import useCheckInController from './controller/save_checkin_controller.tsx';
 
-type RecordFormScreenNavigationProp = StackNavigationProp<
+type CheckInFormScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
-  typeof ROUTES.RecordFormScreen
+  typeof ROUTES.CheckInFormScreen
 >;
-type RecordFormScreenRouteProp = RouteProp<
+type CheckInScreenRouteProp = RouteProp<
   RootStackParamList,
-  typeof ROUTES.RecordFormScreen
+  typeof ROUTES.CheckInFormScreen
 >;
 
-interface RecordFormScreenProps {
-  navigation: RecordFormScreenNavigationProp;
-  route: RecordFormScreenRouteProp;
+interface CheckInScreenProps {
+  navigation: CheckInFormScreenNavigationProp;
+  route: CheckInScreenRouteProp;
 }
 
-const RecordFormScreen: React.FC<RecordFormScreenProps> = ({
+const CheckInFormScreen: React.FC<CheckInScreenProps> = ({
                                                              navigation,
                                                              route,
                                                            }) => {
-  let isStart: boolean = route.params.screenType === 1;
+  let isCheckIn: boolean = route.params.screenType === 1;
+  let customerId: string = route.params.customerId;
+
   const {
-    startMileage,
-    setStartMileage,
-    vehicleImage,
-    setVehicleImage,
-    mileageImage,
-    setMileageImage,
+    image,
     visible,
     snackbarMessage,
     handleSnackbarDismiss,
     loading,
     onSave,
+    setImage,
     pickImage,
-  } = useRecordMileageController();
+  } = useCheckInController();
 
   const renderImageWithDeleteIcon = (
     imageUri: string,
@@ -65,45 +64,29 @@ const RecordFormScreen: React.FC<RecordFormScreenProps> = ({
       </View>
     );
   };
-
   return (
     <View style={styles.safeArea}>
       <MainAppBar
         title={`${
-          isStart
-            ? Const.languageData?.Record_Start_Mileage ?? 'Start'
-            : Const.languageData?.Record_End_Mileage ?? 'End'
+          isCheckIn
+            ?  'Check In'
+            :  'Check Out'
         }`}
         isPrimary={false}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
-          <CustomTextField
-            keyboardType={"numeric"}
-            value={startMileage}
-            placeholder={isStart
-              ? Const.languageData?.Enter_Start_Mileage ?? 'Start'
-              : Const.languageData?.Enter_End_Mileage ?? 'End'
-            }
-            label={
-              isStart
-              ? Const.languageData?.Start_mileage ?? 'Start'
-              : Const.languageData?.End_Mileage ?? 'End'
-            }
-            onChangeText={function (text: string): void {
-              setStartMileage(text);
-            }}
-          />
+
           <Text style={styles.label}>
-            {Const.languageData?.Vehicle_Image_With_Number_Plate ??
-              'Vehicle Image'}
+            {
+              'Image'}
           </Text>
           <TouchableOpacity
             style={styles.imagePlaceholder}
-            onPress={() => pickImage(setVehicleImage)}>
-            {vehicleImage ? (
-              renderImageWithDeleteIcon(vehicleImage, () =>
-                setVehicleImage(null)
+            onPress={() => pickImage()}>
+            {image ? (
+              renderImageWithDeleteIcon(image, () =>
+                setImage(null)
               )
             ) : (
               <Text style={styles.placeholderText}>
@@ -112,32 +95,21 @@ const RecordFormScreen: React.FC<RecordFormScreenProps> = ({
             )}
           </TouchableOpacity>
 
-          <Text style={styles.label}>
-            {Const.languageData?.Mileage_Image_Showing_Current_Record ??
-              'Mileage Image'}
-          </Text>
-          <TouchableOpacity
-            style={styles.imagePlaceholder}
-            onPress={() => pickImage(setMileageImage)}>
-            {mileageImage ? (
-              renderImageWithDeleteIcon(mileageImage, () =>
-                setMileageImage(null)
-              )
-            ) : (
-              <Text style={styles.placeholderText}>
-                {Const.languageData?.Tap_to_upload ?? 'Tap to select to upload'}
-              </Text>
-            )}
-          </TouchableOpacity>
 
           <CustomButton
             loading={loading}
             title={Const.languageData?.Save ?? 'Save'}
             buttonStyle={{marginTop: 40}}
             onPress={async () => {
-              var data = await onSave(isStart ? 'start' : 'end');
+              var data = await onSave(isCheckIn ? 'checkin' : 'ckeckout',customerId);
               if (data === true) {
-                navigation.replace(ROUTES.RecordSuccessScreen);
+                if(isCheckIn) {
+                  DeviceEventEmitter.emit('event.testEvent');
+                }
+                else {
+                  DeviceEventEmitter.emit('event.closeevent');
+                }
+                navigation.goBack(); // Na
               }
             }}
           />
@@ -209,4 +181,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RecordFormScreen;
+export default CheckInFormScreen;

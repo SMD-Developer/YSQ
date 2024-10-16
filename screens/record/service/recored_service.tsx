@@ -179,7 +179,58 @@ const RecordMileageService = {
     } catch (error) {
       console.log('Error syncing mileage data:', error);
     }
-  }
+  },
+  checkIn: async (data: {
+    sale_man_id: string;
+    customer_id: string;
+    image: string;
+    location: string;
+    type:string;
+
+  }) => {
+    try {
+      const networkState = await NetInfo.fetch();
+
+
+      // If network is available, proceed with the API request
+      var getTokenHeader = await Const.getTokenHeaderWithFOrmType();
+      const formData = new FormData();
+      formData.append('salesman_id', data.sale_man_id);
+      formData.append('customer_id', data.customer_id);
+      formData.append('location', data.location);
+      formData.append('uploaded_date', RecordMileageService.formatDate().toString());
+
+      if (data.image) {
+        formData.append('image', {
+          type: 'image/jpg',
+          name: 'image.jpg',
+          uri: data.image,
+        });
+      }
+
+      console.log(formData);
+      const response = await axios.post(
+        data.type=="checkin"?
+        `${Const.BASE_URL}api/m1/check-in`:`${Const.BASE_URL}api/m1/check-out`,
+        formData,
+        {
+          headers: {
+            ...getTokenHeader,
+          },
+        },
+      );
+
+console.log('response',  response.data);
+      return response.data;
+    } catch (error) {
+
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || 'Failed');
+      } else {
+        throw new Error('An unexpected error occurred. Please try again.');
+      }
+    }
+  },
 };
 
 export default RecordMileageService;

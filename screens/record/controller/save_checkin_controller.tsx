@@ -9,18 +9,18 @@ import {
 import User from '../../login/models/user_model';
 import { Const } from '../../../constants/const_value';
 
-const useRecordMileageController = () => {
+const useCheckInController = () => {
   const [visible, setVisible] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
-  const [startMileage, setStartMileage] = useState('');
-  const [vehicleImage, setVehicleImage] = useState<string | null>(null);
-  const [mileageImage, setMileageImage] = useState<string | null>(null);
+
+  const [image, setImage] = useState<string | null>(null);
+
   const [loading, setLoading] = useState<boolean>(false);
   var currentUser: User | null;
 
   const pickImage = async (
-    setImage: React.Dispatch<React.SetStateAction<string | null>>,
+
   ) => {
     const options: ImageLibraryOptions = {
       mediaType: 'photo', // Can be 'photo' or 'video'
@@ -38,9 +38,9 @@ const useRecordMileageController = () => {
       }
     });
   };
-  const onSave = async (type: string) => {
-    if (!startMileage || !vehicleImage || !mileageImage) {
-      setSnackbarMessage(Const.languageData?.Fill_all_fields_and_upload_images??'Please fill all fields and upload images.');
+  const onSave = async (type: string,customer_id:string ) => {
+    if (!image) {
+      setSnackbarMessage('Please upload image.');
       setVisible(true);
       return;
     }
@@ -54,23 +54,19 @@ const useRecordMileageController = () => {
       loaction = '';
     }
     // @ts-ignore
-    const recordMileageData: RecordMileageModel = {
-      sale_man_id: currentUser?.id.toString()!,
-      type,
-      mileage: startMileage,
-      vehicle_image: vehicleImage,
-      mileage_image: mileageImage,
-      location: loaction,
-    };
-console.log('recordMileageData', recordMileageData);
+
     try {
-      await RecordMileageService.uploadMileage(recordMileageData);
+      await RecordMileageService.checkIn( {
+        sale_man_id: currentUser?.id.toString()!,
+        customer_id:customer_id,
+        image: image,
+        location: loaction,
+        type:type,
+      });
       
-      setSnackbarMessage('Mileage recorded successfully');
+      setSnackbarMessage(`${type} successfully`);
       setVisible(true);
-      setMileageImage(null);
-      setVehicleImage(null);
-      setStartMileage('');
+
       return true;
     } catch (error: any) {
       //console.log(error);
@@ -89,12 +85,8 @@ console.log('recordMileageData', recordMileageData);
   };
 
   return {
-    startMileage,
-    setStartMileage,
-    vehicleImage,
-    setVehicleImage,
-    mileageImage,
-    setMileageImage,
+  image,
+    setImage,
     visible,
     snackbarMessage,
     handleSnackbarDismiss,
@@ -104,4 +96,4 @@ console.log('recordMileageData', recordMileageData);
   };
 };
 
-export default useRecordMileageController;
+export default useCheckInController;
