@@ -128,7 +128,10 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation, route}) => {
       });
     }
   };
-  const calculateBearing = (start, end) => {
+  const calculateBearing = (
+    start: {latitude: any; longitude: any},
+    end: {latitude: any; longitude: any},
+  ) => {
     const lat1 = (start.latitude * Math.PI) / 180;
     const lon1 = (start.longitude * Math.PI) / 180;
     const lat2 = (end.latitude * Math.PI) / 180;
@@ -198,7 +201,8 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation, route}) => {
                   const formattedTime = format(arrivalTime, 'hh:mm a');
                   setArrival(formattedTime);
                   moveToCurrentLocation();
-                  const nextPoint = result.coordinates[1]; // Get the next point in the polyline
+                  // @ts-ignore
+                  const nextPoint:{latitude,longitude} = result.coordinates[1]; // Get the next point in the polyline
                   if (nextPoint && nextPoint.latitude && nextPoint.longitude) {
                     const bearing = calculateBearing(origin, nextPoint); // Calculate bearing between origin and nextPoint
                     setHeading(bearing); // Set the marker heading to the calculated bearing
@@ -293,6 +297,7 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation, route}) => {
             </View>
             <CustomButton
               onPress={function (): void {
+                // @ts-ignore
                 navigation.replace(ROUTES.MapRouteSuccessScreen, {
                   outletId: outletId,
                 });

@@ -73,6 +73,7 @@ function App() {
   const handleNetworkChange = (state: NetInfoState) => {
     console.log('Calling handleNetworkChange');
 
+
     // Only trigger sync if we were offline and are now connected
     if (wasOffline.current === true && state.isConnected) {
       console.log('Network is back online. Syncing sales...');

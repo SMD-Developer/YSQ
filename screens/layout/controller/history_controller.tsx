@@ -112,7 +112,7 @@ export const useHistoryController = (screenType: number) => {
       }
     }
   };
-  const fetchSalesReturnHistoryData = async (page:any) => {
+  const fetchSalesReturnHistoryData = async page => {
     if (page === 1) {
       setLoading(true);
     }
@@ -137,7 +137,7 @@ export const useHistoryController = (screenType: number) => {
       }
     }
   };
-  const fetchGiftHistoryData = async (page:any) => {
+  const fetchGiftHistoryData = async page => {
     if (page === 1) {
       setLoading(true);
     }

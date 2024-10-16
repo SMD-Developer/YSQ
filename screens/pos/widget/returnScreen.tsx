@@ -184,6 +184,7 @@ const ReturnScreen: React.FC<any> = ({navigation, route}) => {
               [];
 
             if (step === 2) {
+              setReturnLoading(true);
               const currentDate = new Date();
               const formattedDate = format(currentDate, 'dd-MM-yyyy hh:mm:ss');
               var user = await User.getUser();

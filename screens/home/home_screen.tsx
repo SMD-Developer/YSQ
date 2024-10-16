@@ -13,7 +13,7 @@ import MainAppBar from '../../components/custom_main_app_bar';
 import {Const} from '../../constants/const_value';
 import {Promotion} from './models/promotion_model';
 
-interface Option {
+export interface Option {
   id: string;
   title: string;
   value: string;
@@ -428,13 +428,7 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     alignItems: 'center',
   },
-  promotionContainer: {
-    padding: 15,
-    // borderWidth: 1,
-    // borderColor: COLORS.PRIMARY,
-    borderRadius: 10,
-    margin: 15,
-  },
+
   promotionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -463,11 +457,7 @@ const styles = StyleSheet.create({
   promotionTextContainer: {
     flexDirection: 'column',
   },
-  promotionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black', // White text
-  },
+
   promotionDescription: {
     fontSize: 14,
     color: 'black', // White text

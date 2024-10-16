@@ -76,6 +76,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
   const {
     createSale,
     salesLoading,
+    setSalesLoading,
     showSnackBar,
     setShowSnackBar,
     errorMessage,
@@ -215,6 +216,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
               }
             }
             if (step === 3) {
+              setSalesLoading(true);
               var productWithQuantity = products.map(product => {
                 product.quantity = quantities[product.main_product_id];
                 return product;
@@ -227,6 +229,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                   Const.languageData?.Please_select_atleast_one_product ??
                     'Please select at least one product',
                 );
+                setSalesLoading(false);
                 setShowSnackBar(true);
                 return;
               } else if (selectedPayment === null) {
@@ -235,6 +238,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                     'Please select payment method',
                 );
                 setShowSnackBar(true);
+                setSalesLoading(false);
                 return;
               } else if (photoUri === null || photoUri === '') {
                 setError(
@@ -242,6 +246,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                     'Please select product photo',
                 );
                 setShowSnackBar(true);
+                setSalesLoading(false);
                 return;
               }
               const currentDate = new Date();
