@@ -131,7 +131,20 @@ const ReturnSuccessScreen: React.FC<ReturnSuccessScreenProps> = ({
             navigation.goBack();
           }}>
           <Text style={styles.buttonTextSecondary}>
-            {Const.languageData?.Back_to_home ?? 'Back to Home'}
+            {Const.languageData?.Place_another_order ?? 'Place another order'}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.buttonSecondary,{marginBottom: 30}]}
+          onPress={() => {
+            navigation.goBack();
+            navigation.navigate(ROUTES.CheckInFormScreen, {
+
+              screenType: 2,customerId:data.outletId,
+            });
+          }}>
+          <Text style={styles.buttonTextSecondary}>
+            { 'Check Out'}
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -238,7 +251,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 55,
+    marginBottom: 10,
   },
   buttonTextSecondary: {
     color: COLORS.PRIMARY,

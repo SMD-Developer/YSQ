@@ -288,6 +288,7 @@ const OutletService = {
           address: outlet.address,
           latitude: outlet.latitude,
           longitude: outlet.longitude,
+          chanel_id:outlet.chanel_id,
           credit_limit: outlet.credit_limit,
           area: outlet.area,
           userType: outlet.userType,
@@ -358,6 +359,7 @@ const OutletService = {
           area: outlet.area,
           userType: outlet.userType,
           channel: outlet.channel,
+          chanel_id: outlet.chanel_id,
         }));
 
         // Return the local data

@@ -100,9 +100,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
     }
     var sum = updateProductQuantities().reduce((total, product) => {
       const product_price =
-        Object.keys(product?.chanel)
-          .map(key => product?.chanel[key])
-          .find(data => foundOutlet?.chanel_id === data?.chanel_id)?.price ||
+
         product.product_price;
 
       return total + product_price * product.quantity;
@@ -321,6 +319,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                             option => option.id === selectedPayment,
                           )[0].name,
                     promotion: selectedCoupon?.attributes.code ?? '-',
+                    outletId:foundOutlet?.id,
                     products: productWithQuantity.map(product => {
                       return {
                         name: product.name,

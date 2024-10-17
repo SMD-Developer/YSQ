@@ -8,6 +8,7 @@ const ProductSchema = {
     product_code: 'string',
     product_cost: 'int',
     product_price: 'int',
+    chanel: 'string',
     images: 'string[]',
     in_stock: 'int',
     assign_quantity: 'int',
@@ -22,6 +23,7 @@ const ProductEmbededSchema = {
     name: 'string',
     code: 'string',
     product_code: 'string',
+    chanel: 'string',
     product_cost: 'int',
     product_price: 'int',
     images: 'string[]',
@@ -100,6 +102,7 @@ const OutletSchema = {
     channelDetails: 'mixed?',
     areaDetails: 'mixed?',
     assigned_date: 'mixed?',
+    chanel_id:'mixed?',
   },
 };
 const AddOutletSchema = {

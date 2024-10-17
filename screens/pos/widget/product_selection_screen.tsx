@@ -200,7 +200,10 @@ const ProductSelectionScreen: React.FC<{
                 <TouchableOpacity
                   style={styles.quantityButton}
                   onPress={() => {
+                    console.log(quantities[item.main_product_id]+1);
+                    console.log("assign saif quantity",item.assign_quantity);
                     if (
+                      (quantities[item.main_product_id]==undefined&& item.assign_quantity==0)||
                       quantities[item.main_product_id] + 1 >
                       item.assign_quantity
                     ) {

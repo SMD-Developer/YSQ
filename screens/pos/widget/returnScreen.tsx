@@ -244,6 +244,7 @@ const ReturnScreen: React.FC<any> = ({navigation, route}) => {
                   data: {
                     outletName: foundOutlet!.name,
                     date: formattedDate,
+                    outletId:foundOutlet?.id,
                     paymentType: selectedPayment,
                     promotion: '',
                     products: productWithQuantity!.map(product => {

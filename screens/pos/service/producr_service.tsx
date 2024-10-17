@@ -178,6 +178,7 @@ class ProductService {
                     code: product.code,
                     product_code: product.product_code,
                     product_cost: product.product_cost,
+                    chanel: JSON.stringify(product.chanel),
                     product_price: product.product_price,
                     images: product.images.imageUrls,
                     in_stock: product.in_stock,
@@ -211,7 +212,9 @@ class ProductService {
           return offlineProducts.map(element => {
             // Create a new object by spreading the properties of the original Realm object
             const newElement = {...element.toJSON()};
+            console.log(element.chanel);
             newElement.main_product_id = element.id;
+            newElement.chanel=JSON.parse(element.chanel)
 
             // Modify the new object
             newElement.sale_unit_name = {
@@ -632,6 +635,7 @@ class ProductService {
                       product_price: product.product_price,
                       images: product.images.imageUrls,
                       in_stock: product.in_stock,
+                      chanel: JSON.stringify(product.chanel),
                       mainProductId: product.main_product_id,
                       assign_quantity: product.assign_quantity,
                       sale_unit_name: product.sale_unit_name.name,
@@ -702,6 +706,7 @@ class ProductService {
                 product_id: item.productId.map((product: any) => ({
                   name: product.name,
                   code: product.code,
+                  chanel:JSON.parse(product.chanel),
                   product_code: product.product_code,
                   product_cost: product.product_cost,
                   product_price: product.product_price,

@@ -7,6 +7,7 @@ import {Const} from '../../constants/const_value';
 
 interface ConfirmationModalProps {
   isVisible: boolean;
+  message:string|null;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -14,6 +15,7 @@ interface ConfirmationModalProps {
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   isVisible,
   onConfirm,
+message,
   onCancel,
 }) => {
   return (
@@ -23,8 +25,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           {Const.languageData?.Confirmation ?? 'Confirmation'}
         </Text>
         <Text style={styles.title}>
-          {Const.languageData?.Want_to_start_trip ??
-            'Do you want to start the trip?'}
+          {message??(Const.languageData?.Want_to_start_trip ??
+            'Do you want to start the trip?')}
         </Text>
         <View style={styles.buttonContainer}>
           <CustomButton

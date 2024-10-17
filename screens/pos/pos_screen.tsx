@@ -7,7 +7,8 @@ import {
   FlatList,
   Modal,
   TouchableOpacity,
-  StyleSheet, DeviceEventEmitter,
+  StyleSheet,
+  DeviceEventEmitter,
 } from 'react-native';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import CustomButton from '../../components/custom_app_button';
@@ -25,6 +26,7 @@ import {RouteProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList, ROUTES} from '../../routes/routes_name';
 import {AddOutletModel} from '../outlet/modle/add_outlet_model';
 import CustomSnackbar from '../../components/custom_snackbar.tsx';
+import ConfirmationModal from '../route/confirmation_dialog.tsx';
 
 type PosScreenRouteProp = RouteProp<RootStackParamList, typeof ROUTES.Pos>;
 
@@ -38,8 +40,8 @@ type CheckInComponentProps = {
   foundOutlet: AddOutletModel | null;
   setFoundOutlet: React.Dispatch<React.SetStateAction<AddOutletModel | null>>;
   setError: React.Dispatch<React.SetStateAction<String | null>>;
-  showSnackBar:boolean;
-  setShowSnackBar:React.Dispatch<React.SetStateAction<boolean>>;
+  showSnackBar: boolean;
+  setShowSnackBar: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const CheckInComponent: React.FC<CheckInComponentProps> = ({
@@ -47,28 +49,30 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
   onCheckIn,
   foundOutlet,
   setFoundOutlet,
-                                                             setError,
-                                                             setShowSnackBar
-
+  setError,
+  setShowSnackBar,
 }) => {
-  var  navigation=useNavigation();
+  var navigation = useNavigation();
   const {outlets, loading} = useOutletController();
   const [modalVisible, setModalVisible] = useState(false);
-  const [tempSelectedOutlet, setTempSelectedOutlet] = useState<string | null>(null);
-  DeviceEventEmitter.addListener("event.testEvent", (eventData) =>
-    handleSuccess());
+  const [tempSelectedOutlet, setTempSelectedOutlet] = useState<string | null>(
+    null,
+  );
+  DeviceEventEmitter.addListener('event.testEvent', eventData =>
+    handleSuccess(),
+  );
 
   useEffect(() => {
     //console.log('selectedOutlet', outlet);
     //console.log('outlets', outlets);
     if (Const.selectedOutlet !== null) {
-setTempSelectedOutlet(Const.selectedOutlet!)
+      setTempSelectedOutlet(Const.selectedOutlet!);
 
-      Const.selectedOutlet = null;
       navigation.navigate(ROUTES.CheckInFormScreen, {
-        screenType: 1,customerId:tempSelectedOutlet
+        screenType: 1,
+        customerId: Const.selectedOutlet,
       });
-
+      Const.selectedOutlet = null;
     }
     for (let i = 0; i < outlets.length; i++) {
       if (outlets[i].id === outlet) {
@@ -77,29 +81,46 @@ setTempSelectedOutlet(Const.selectedOutlet!)
       }
     }
   }, [loading, outlets, outlet, foundOutlet, setFoundOutlet, onCheckIn]);
-  const handleSuccess =()=>{
-    console.log("calling success");
-    onCheckIn(tempSelectedOutlet!);  // Pass the selected outlet to onCheckIn// Update the foundOutlet
-  }
-
+  const [isCancelModalVisible, setCancelModalVisible] = useState(false);
+  const handleSuccess = () => {
+    console.log('calling success');
+    onCheckIn(tempSelectedOutlet!);
+    DeviceEventEmitter.emit('event.setcheckin', {outletId: tempSelectedOutlet}); // Pass the selected outlet to onCheckIn// Update the foundOutlet
+  };
+  const handleConfirm = () => {
+    setCancelModalVisible(false);
+    navigation.navigate(ROUTES.CheckInFormScreen, {
+      screenType: 2,
+      customerId: tempSelectedOutlet,
+    });
+  };
+  const handleCancel = () => {
+    setCancelModalVisible(false);
+  };
 
   return (
     <View
       style={[
         styles.checkInContainer,
         foundOutlet === null &&
-        outlet === '' && {
-          justifyContent: 'center',
-          alignItems: 'center',
-          flex: 1,
-        },
+          outlet === '' && {
+            justifyContent: 'center',
+            alignItems: 'center',
+            flex: 1,
+          },
       ]}>
+      <ConfirmationModal
+        isVisible={isCancelModalVisible}
+        message={'Do you can to check out current customer?'}
+        onConfirm={() => handleConfirm()}
+        onCancel={handleCancel}
+      />
       <TouchableOpacity
         style={styles.checkInButton}
-        onPress={() =>{
+        onPress={() => {
           console.log('clicked');
           setTempSelectedOutlet(outlet);
-          (outlet ? '' : setModalVisible(true))
+          outlet ? '' : setModalVisible(true);
         }}>
         {outlet ? (
           <View style={styles.selectedOutletContainer}>
@@ -121,26 +142,18 @@ setTempSelectedOutlet(Const.selectedOutlet!)
                 <Text style={styles.outletText}>{'Loading...'}</Text>
               )}
             </View>
-          <View
-          style={{flexDirection:"row"}}
-          >
-            <View style={{marginRight:20}}><Icon source="pause-circle" size={30} color="white" />
+            <View style={{flexDirection: 'row'}}>
+              <View style={{marginRight: 20}}>
+                <Icon source="pause-circle" size={30} color="white" />
+              </View>
+              <TouchableOpacity
+                style={{}}
+                onPress={() => {
+                  setCancelModalVisible(true);
+                }}>
+                <Icon source="window-close" size={30} color="white" />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={
-              {}
-              }
-              onPress={() => {
-              navigation.navigate(ROUTES.CheckInFormScreen, {
-
-                screenType: 2,customerId:tempSelectedOutlet
-              });
-            }}>
-              <Icon source="window-close" size={30} color="white" />
-
-            </TouchableOpacity>
-
-          </View>
           </View>
         ) : (
           <Text style={styles.checkInText}>
@@ -154,6 +167,7 @@ setTempSelectedOutlet(Const.selectedOutlet!)
             'Click on above button to Checkin at the outlet and sell products.'}
         </Text>
       )}
+
       <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -195,7 +209,11 @@ setTempSelectedOutlet(Const.selectedOutlet!)
                       <RadioButton
                         color={COLORS.PRIMARY}
                         value={item.id!}
-                        status={tempSelectedOutlet === item.id ? 'checked' : 'unchecked'}
+                        status={
+                          tempSelectedOutlet === item.id
+                            ? 'checked'
+                            : 'unchecked'
+                        }
                         onPress={() => setTempSelectedOutlet(item.id!)}
                       />
                     </View>
@@ -216,16 +234,16 @@ setTempSelectedOutlet(Const.selectedOutlet!)
               <CustomButton
                 onPress={function (): void {
                   if (!tempSelectedOutlet) {
-                    setError("No outlet selected");
+                    setError('No outlet selected');
                     setShowSnackBar(true);
                     return;
                   }
                   // @ts-ignore
                   navigation.navigate(ROUTES.CheckInFormScreen, {
-                    screenType: 1,customerId:tempSelectedOutlet
+                    screenType: 1,
+                    customerId: tempSelectedOutlet,
                   });
                   setModalVisible(false);
-
                 }}
                 title={Const.languageData?.Confirm ?? 'Confirm'}
                 buttonStyle={{width: '50%'}}
@@ -252,12 +270,9 @@ const PosScreen: React.FC<PosProps> = ({route}) => {
     setOutlet(selectedOutlet);
   };
 
-
-  DeviceEventEmitter.addListener("event.closeevent", (eventData) =>
-  {
-setOutlet("");
-setFoundOutlet(null);
-
+  DeviceEventEmitter.addListener('event.closeevent', eventData => {
+    setOutlet('');
+    setFoundOutlet(null);
   });
   const [showSnackBar, setShowSnackBar] = useState<boolean>(false);
   const [errorMessage, setError] = useState<string | null>(null);

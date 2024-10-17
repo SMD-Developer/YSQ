@@ -200,6 +200,7 @@ const GiftScreen: React.FC<any> = ({navigation, route}) => {
                     date: formattedDate,
                     paymentType: '',
                     promotion: '',
+                    outletId:foundOutlet?.id,
                     products: productWithQuantity.map(product => {
                       return {
                         name: product.title,

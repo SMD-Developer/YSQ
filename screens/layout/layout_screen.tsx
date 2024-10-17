@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   TouchableWithoutFeedbackBase,
+  DeviceEventEmitter,
 } from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Icon} from 'react-native-paper';
@@ -21,8 +22,10 @@ import {CurvedBottomBar} from 'react-native-curved-bottom-bar';
 import {ROUTES} from '../../routes/routes_name';
 import HomeScreen from '../home/home_screen';
 import {Const} from '../../constants/const_value';
+import ConfirmationModal from '../route/confirmation_dialog';
 
 interface LayoutScreenProps {
+  navigation: any;
   route: {
     params?: {
       initialRoute?: string;
@@ -31,7 +34,28 @@ interface LayoutScreenProps {
   };
 }
 const Tab = createBottomTabNavigator();
-const LayoutScreen: React.FC<LayoutScreenProps> = ({route}) => {
+const LayoutScreen: React.FC<LayoutScreenProps> = ({route, navigation}) => {
+  DeviceEventEmitter.addListener('event.setcheckin', eventData =>
+    handleSuccess(eventData.outletId),
+  );
+  const handleSuccess = (outletId: string) => {
+    console.log('calling success');
+    setOutletCheckin(outletId); // Pass the selected outlet to onCheckIn// Update the foundOutlet
+  };
+  DeviceEventEmitter.addListener('event.closeevent', eventData => {
+    console.log('calling cloose');
+    setOutletCheckin('');
+    // if (param) {
+    //   navigation.navigate(param);
+    // }
+  });
+
+  const [outletCheckin, setOutletCheckin] = useState<string>('');
+  const [selectedTab, setSelectedTab] = useState<
+    ((name: string) => void) | undefined
+  >();
+  const [param, setParam] = useState<string>('');
+
   const initialScreen = route.params?.initialRoute ?? 'Home';
   const outletId = route.params?.outletId ?? '';
   const _renderIcon = (routeName: any, selectedTab: any) => {
@@ -84,85 +108,117 @@ const LayoutScreen: React.FC<LayoutScreenProps> = ({route}) => {
     navigate: (selectedTab: string) => void;
   };
   const renderTabBar = (params: RenderTabBarParams) => {
-    
     return (
       <TouchableOpacity
-        onPress={() => params.navigate(params.routeName)}
+        onPress={() => {
+          console.log('presssing');
+
+          if (outletCheckin) {
+            setParam(params.routeName);
+            setModalVisible(true);
+          } else {
+            params.navigate(params.routeName);
+          }
+        }}
         style={styles.tabbarItem}>
         {_renderIcon(params.routeName, params.selectedTab)}
       </TouchableOpacity>
     );
   };
+
+  const handleConfirm = () => {
+    setModalVisible(false);
+    navigation.navigate(ROUTES.CheckInFormScreen, {
+      screenType: 2,
+      customerId:outletCheckin,
+    });
+  };
+  const handleCancel = () => {
+    setModalVisible(false);
+  };
+  const [isModalVisible, setModalVisible] = useState(false);
   //console.log('initialScreen', outletId);
   return (
-
-    <CurvedBottomBar.Navigator
-    
-      type="DOWN"
-      height={55}
-      circleWidth={50}
-      style={styles.shawdow}
-      shadowStyle={styles.shawdow}
-      bgColor="white"
-    
-      initialRouteName={initialScreen}
-      screenOptions={{
-        headerShown: false,
-      }}
-      renderCircle={({selectedTab, navigate, routeName}) => (
-        <Animated.View style={styles.btnCircleUp}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigate(routeName)}>
-            <View>
-              <Icon
-                source={'note-text'}
-                color={routeName === selectedTab ? 'white' : 'white'}
-                size={25}
-              />
-              {/* <Text
+    <View style={{flex: 1}}>
+      <CurvedBottomBar.Navigator
+        type="DOWN"
+        height={55}
+        circleWidth={50}
+        style={styles.shawdow}
+        shadowStyle={styles.shawdow}
+        bgColor="white"
+        initialRouteName={initialScreen}
+        screenOptions={{
+          headerShown: false,
+        }}
+        renderCircle={({selectedTab, navigate, routeName}) => (
+          <Animated.View style={styles.btnCircleUp}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigate(routeName)}>
+              <View>
+                <Icon
+                  source={'note-text'}
+                  color={routeName === selectedTab ? 'white' : 'white'}
+                  size={25}
+                />
+                {/* <Text
           style={{
             color: routeName === selectedTab ? "black" : 'white',
           }}>
           Pos
         </Text> */}
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-      )}
-      tabBar={renderTabBar}>
-      <CurvedBottomBar.Screen
-        name="Home"
-        position="LEFT"
-        component={HomeScreen}
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+        tabBar={renderTabBar}>
+        <CurvedBottomBar.Screen
+          name="Home"
+          position="LEFT"
+          listeners={({navigation}) => ({
+            tabPress: e => {
+              // Prevent tab change if outlet is not empty
+              // if (outletCheckin) {
+              //   e.preventDefault();
+              //   showExitOutletDialog(navigation, 'Home');
+              // }
+            },
+          })}
+          component={HomeScreen}
+        />
+        <CurvedBottomBar.Screen
+          name="Routes"
+          position="LEFT"
+          component={RouteScreen}
+        />
+        <CurvedBottomBar.Screen
+          name="Pos"
+          position="CIRCLE"
+          component={PosScreen}
+          // options={{
+          //   unmountOnBlur: true, // This ensures the component is unmounted when the tab loses focus
+          // }}
+          initialParams={{outletId: outletId}}
+        />
+        <CurvedBottomBar.Screen
+          name="Record"
+          position="RIGHT"
+          component={RecordScreen}
+        />
+        <CurvedBottomBar.Screen
+          name="Sales"
+          position="RIGHT"
+          component={SalesScreen}
+        />
+      </CurvedBottomBar.Navigator>
+      <ConfirmationModal
+        isVisible={isModalVisible}
+        message={'Do you can to check out current customer?'}
+        onConfirm={() => handleConfirm()}
+        onCancel={handleCancel}
       />
-      <CurvedBottomBar.Screen
-        name="Routes"
-        position="LEFT"
-        component={RouteScreen}
-      />
-      <CurvedBottomBar.Screen
-      
-        name="Pos"
-        position="CIRCLE"
-
-        component={PosScreen}
-        // options={{
-        //   unmountOnBlur: true, // This ensures the component is unmounted when the tab loses focus
-        // }}
-        initialParams={{outletId: outletId}}
-      />
-      <CurvedBottomBar.Screen
-        name="Record"
-        position="RIGHT"
-        component={RecordScreen}
-      />
-      <CurvedBottomBar.Screen
-        name="Sales"
-        position="RIGHT"
-        component={SalesScreen}
-      />
-    </CurvedBottomBar.Navigator>
+    </View>
   );
 };
 

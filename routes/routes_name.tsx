@@ -105,6 +105,7 @@ export type RootStackParamList = {
         quantity: number;
       }[];
       outletName: string;
+      outletId: string;
       date: string;
       paymentType?: string;
       promotion?: string;

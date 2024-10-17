@@ -47,6 +47,7 @@ export class LanguageModel {
   Credit_limit: string;
   Print_Receipt: string;
   Back_to_home: string;
+  Place_another_order: string;
   Select_products: string;
   Select_gifts: string;
   Language: string;
@@ -266,6 +267,7 @@ export class LanguageModel {
     this.Mileage_History = data.Mileage_History || 'Mileage History';
     this.Cancel = data.Cancel || 'Cancel';
     this.Ok = data.Ok || 'Ok';
+    this.Place_another_order = data.Place_another_order || 'Place another order';
     this.Save = data.Save || 'Save';
     this.Submit = data.Submit || 'Submit';
     this.POS = data.POS || 'POS';
