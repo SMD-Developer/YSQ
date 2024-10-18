@@ -17,4 +17,5 @@ export interface AddOutletModel {
   channelDetails: any;
   areaDetails: any;
   assigned_date: any;
+  channel_details:any;
 }

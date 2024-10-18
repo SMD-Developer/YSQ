@@ -24,37 +24,24 @@ import RNFS from 'react-native-fs';
 const DeliveryScreen: React.FC<any> = ({navigation}) => {
   const {foundOutlet, setMap} = usePosContext();
   useEffect(() => {
-    setStep(1);
-    setQuantities({});
-    setPhotoUri('');
-    setComments('');
-    setSelectedCoupon(null);
-    setSelectedPayment(null);
+    // setStep(1);
+    // setQuantities({});
+    // setPhotoUri('');
+    // setComments('');
+    // setSelectedCoupon(null);
+    // setSelectedPayment(null);
+
+
+
+
+    console.log("caaling effect");
   }, [foundOutlet]);
 
   const [step, setStep] = useState(1); // Step 1: Product Selection, Step 2: Apply Coupon, Step 3: Payment & Delivery
   const [quantities, setQuantities] = React.useState<Record<string, number>>(
     {},
   );
-  DeviceEventEmitter.addListener('event.resumeoutlet', eventData => {
-    console.log('settting data');
-    console.log(eventData.quantity);
-    const personMap = new Map(Object.entries(eventData.quantity));
-    setTimeout(() => {
-      console.log('This is delayed by 2 seconds', eventData.quantity);
 
-      Object.keys(eventData.quantity).forEach(element => {
-        console.log(element);
-        console.log(personMap.get(element));
-        setQuantities(prevQuantities => {
-          const newQuantity = Number(personMap.get(element));
-          return {...prevQuantities, [element.toString()]: newQuantity};
-        });
-      });
-    }, 5000);
-
-    console.log(quantities);
-  });
   const handleQuantityChange = (
     productId: number,
     increment: boolean,

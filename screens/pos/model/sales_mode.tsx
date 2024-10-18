@@ -43,6 +43,7 @@ interface SaleAttributes {
   customer_name: string;
   warehouse_id: number;
   warehouse_name: string;
+  location: string;
   tax_rate: number;
   tax_amount: number;
   discount: number;

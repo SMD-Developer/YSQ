@@ -39,8 +39,12 @@ const SplashScreen: React.FC<SplashScreenProps> = ({navigation}) => {
           return;
         }
       } else {
-        await LoginService.getUserData();
-        await Const.getUserData();
+        try {
+          await LoginService.getUserData();
+          await Const.getUserData();
+        } catch (e) {
+          console.log(e);
+        }
         navigation.replace(ROUTES.DrawerScreen);
         return;
       }

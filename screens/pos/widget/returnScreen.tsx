@@ -17,6 +17,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import {usePosContext} from '../pos_screen';
 import RNFS from 'react-native-fs';
 import {Const} from '../../../constants/const_value';
+import NetInfo from '@react-native-community/netinfo';
 
 const ReturnScreen: React.FC<any> = ({navigation, route}) => {
   const {foundOutlet} = usePosContext();
@@ -188,11 +189,26 @@ const ReturnScreen: React.FC<any> = ({navigation, route}) => {
               const currentDate = new Date();
               const formattedDate = format(currentDate, 'dd-MM-yyyy hh:mm:ss');
               var user = await User.getUser();
+
+
+   
+              let loaction: any;
+              try {
+                const networkState = await NetInfo.fetch();
+
+                if (networkState.isConnected) {
+                  loaction = await Const.getCurrentLocationName();
+                } else {
+                  loaction = 'offline';
+                }
+                console.log(loaction);
+              } catch (e) {}
               const imageBase = await RNFS.readFile(photoUri, 'base64');
               var response = await createReturnSale({
                 date: currentDate,
                 image: `data:image/jpeg;base64,${imageBase}`,
                 customer_id: foundOutlet?.id,
+                location: loaction,
                 salesman_id: user?.id,
                 warehouse_id: selectedSales?.attributes.warehouse_id,
                 discount: 0,

@@ -44,7 +44,11 @@ const SaleDetailScreen: React.FC<SaleDetailScreenProps> = ({route}) => {
     <ScrollView style={styles.container}>
       <MainAppBar
         title={`${
-          screenType === 1 ? (Const?.languageData?.Sale_Details??'Sale') : screenType === 2 ? (Const?.languageData?.Return_Details??'Sale')  : 'Gift'
+          screenType === 1
+            ? Const?.languageData?.Sale_Details ?? 'Sale'
+            : screenType === 2
+            ? Const?.languageData?.Return_Details ?? 'Sale'
+            : 'Gift'
         }`}
         isPrimary={false}
       />
@@ -64,9 +68,10 @@ const SaleDetailScreen: React.FC<SaleDetailScreenProps> = ({route}) => {
         <Text style={styles.label}>
           {Const.languageData?.Total ?? 'Grand Total'}:
         </Text>
-        <Text style={styles.value}>{`${Const.user?.currency} ${
-          sale.attributes.grand_total
-        }`}</Text>
+        <Text
+          style={
+            styles.value
+          }>{`${Const.user?.currency} ${sale.attributes.grand_total}`}</Text>
         <Text style={styles.label}>
           {Const.languageData?.Discount ?? 'Discount'}:
         </Text>
@@ -77,7 +82,8 @@ const SaleDetailScreen: React.FC<SaleDetailScreenProps> = ({route}) => {
           {Const.languageData?.Final_Amount ?? 'Final Amount'}:
         </Text>
         <Text style={styles.value}>
-          {Const.user?.currency} {sale.attributes.grand_total+sale.attributes.discount}
+          {Const.user?.currency}{' '}
+          {sale.attributes.grand_total + sale.attributes.discount}
         </Text>
         {screenType === 1 && (
           <View>
@@ -95,6 +101,10 @@ const SaleDetailScreen: React.FC<SaleDetailScreenProps> = ({route}) => {
           {sale.attributes.note ??
             Const.languageData?.No_comments ??
             'No comments'}
+        </Text>
+        <Text style={styles.label}>{'Location'}:</Text>
+        <Text style={styles.value}>
+          {sale.attributes.location ?? 'No Location'}
         </Text>
 
         {/* List sale items */}
@@ -125,7 +135,9 @@ const SaleDetailScreen: React.FC<SaleDetailScreenProps> = ({route}) => {
         ))}
         {sale.attributes.uploaded_image && (
           <View>
-            <Text style={styles.label}>{Const.languageData?.Uploaded_photo??'Uploaded Image'}:</Text>
+            <Text style={styles.label}>
+              {Const.languageData?.Uploaded_photo ?? 'Uploaded Image'}:
+            </Text>
             <Image
               source={{uri: sale.attributes.uploaded_image}}
               style={{

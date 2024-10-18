@@ -45,7 +45,7 @@ const GiftDetailScreen: React.FC<SaleDetailScreenProps> = ({route}) => {
           {Const.languageData?.Customer_name ?? 'Customer Name'}:
         </Text>
         <Text style={styles.value}>
-          {gift.outlets.name}
+          {gift.outlets.name} ({gift.outlets.channel_details.name})
         </Text>
         <Text style={styles.label}>
           {Const.languageData?.Gifts ?? 'Gift Item'}:

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
+  DeviceEventEmitter,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {COLORS} from '../../../constants/colors';
@@ -38,7 +39,34 @@ const ProductSelectionScreen: React.FC<{
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
     null,
   );
+  DeviceEventEmitter.addListener('event.resumeoutlet', eventData => {
+    console.log('settting data');
 
+    const personMap = new Map(Object.entries(eventData.quantity ?? {}));
+    console.log(personMap);
+    // handleQuantityChange(5,true,20);
+    // setTimeout(() => {
+    //   console.log('This is delayed by 2 seconds', eventData.quantity);
+
+    //   if (eventData.quantity && Object.keys(eventData.quantity)) {
+    //     Object.keys(eventData.quantity).forEach(element => {
+    //       console.log(element);
+    //       console.log(personMap.get(element));
+    //       if (!personMap.get(element)) {
+    //         handleQuantityChange(
+    //           Number(element.toString()),
+    //           false,
+    //           Number(personMap.get(element)),
+    //         );
+    //       }
+
+    //       console.log('////////////////////');
+    //     });
+    //   }
+    // }, 1000);
+
+    console.log(quantities);
+  });
   const filteredProducts = selectedCategory
     ? products.filter(
         product => product.product_category_name === selectedCategory,
@@ -130,6 +158,9 @@ const ProductSelectionScreen: React.FC<{
               product_price = data?.price;
             }
           });
+          console.log('quantities in product', quantities);
+          console.log('product id', item.main_product_id),
+            console.log(quantities[item.main_product_id]);
 
           return (
             <View style={styles.productItem}>
@@ -200,12 +231,13 @@ const ProductSelectionScreen: React.FC<{
                 <TouchableOpacity
                   style={styles.quantityButton}
                   onPress={() => {
-                    console.log(quantities[item.main_product_id]+1);
-                    console.log("assign saif quantity",item.assign_quantity);
+                    console.log(quantities[item.main_product_id] + 1);
+                    console.log('assign saif quantity', item.assign_quantity);
                     if (
-                      (quantities[item.main_product_id]==undefined&& item.assign_quantity==0)||
+                      (quantities[item.main_product_id] == undefined &&
+                        item.assign_quantity == 0) ||
                       quantities[item.main_product_id] + 1 >
-                      item.assign_quantity
+                        item.assign_quantity
                     ) {
                       setError(
                         Const.languageData?.Quantity_less_equal_to_stock ??

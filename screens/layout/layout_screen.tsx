@@ -9,6 +9,7 @@ import {
   Alert,
   TouchableWithoutFeedbackBase,
   DeviceEventEmitter,
+  BackHandler,
 } from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Icon} from 'react-native-paper';
@@ -23,6 +24,7 @@ import {ROUTES} from '../../routes/routes_name';
 import HomeScreen from '../home/home_screen';
 import {Const} from '../../constants/const_value';
 import ConfirmationModal from '../route/confirmation_dialog';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface LayoutScreenProps {
   navigation: any;
@@ -139,6 +141,19 @@ const LayoutScreen: React.FC<LayoutScreenProps> = ({route, navigation}) => {
     setModalVisible(false);
   };
   const [isModalVisible, setModalVisible] = useState(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        // Prevent tab change by returning true
+        return true;
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [])
+  );
+
   //console.log('initialScreen', outletId);
   return (
     <View style={{flex: 1}}>
@@ -147,11 +162,13 @@ const LayoutScreen: React.FC<LayoutScreenProps> = ({route, navigation}) => {
         height={55}
         circleWidth={50}
         style={styles.shawdow}
+        
         shadowStyle={styles.shawdow}
         bgColor="white"
         initialRouteName={initialScreen}
         screenOptions={{
           headerShown: false,
+          
         }}
         renderCircle={({selectedTab, navigate, routeName}) => (
           <Animated.View style={styles.btnCircleUp}>
