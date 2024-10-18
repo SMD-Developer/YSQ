@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {StyleSheet, View, Text, FlatList, RefreshControl, ScrollViewComponent, ScrollView} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomTextField from '../../components/custom_text_field';
@@ -19,6 +19,7 @@ import {Option} from '../home/home_screen.tsx';
 import useHomeController from '../home/controller/home_controller.tsx';
 
 const SalesScreen: React.FC<any> = () => {
+
   const navigation = useNavigation();
   const {
     homeData,
@@ -58,6 +59,7 @@ const SalesScreen: React.FC<any> = () => {
     fetchNextPage,
     onReferesh,
   } = useHistoryController(1);
+  
   const [paymentOptions] = useState([
     {id: '1', name: Const.languageData?.Cash ?? 'Cash'},
     {id: '2', name: Const.languageData?.Cheque ?? 'Cheque'},
@@ -120,11 +122,17 @@ const SalesScreen: React.FC<any> = () => {
       </TouchableOpacity>
     );
   };
+  const [filterType, setFilterType] = useState('all'); // Track selected filter type
+  useEffect(() => {
+    handleFilterApply(filterType);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
   const handleFilterApply = (
     filter: string,
     startDate?: Date,
     endDate?: Date,
   ) => {
+    setFilterType(filter);
     startDate?.setHours(0, 0, 0, 0);
     endDate?.setHours(0, 0, 0, 0);
     console.log(startDate);

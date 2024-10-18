@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -138,6 +138,7 @@ const SaleHistoryScreen: React.FC<SaleHistoryScreenProps> = ({
     startDate?: Date,
     endDate?: Date,
   ) => {
+    setFilterType(filter);
     startDate?.setHours(0, 0, 0, 0);
     endDate?.setHours(0, 0, 0, 0);
     console.log(startDate);
@@ -172,7 +173,11 @@ const SaleHistoryScreen: React.FC<SaleHistoryScreenProps> = ({
     }
     // Add logic to apply the filter to your data or UI...
   };
-
+  const [filterType, setFilterType] = useState('all'); // Track selected filter type
+  useEffect(() => {
+    handleFilterApply(filterType);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
   return (
     <View style={styles.container}>
       <MainAppBar title={heading} isPrimary={false} />

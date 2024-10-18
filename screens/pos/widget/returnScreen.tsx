@@ -11,7 +11,7 @@ import User from '../../login/models/user_model';
 import {useDeliveryController} from '../controller/delivery_controller';
 import PaymentAndDeliveryScreen from './payment_Selection_screen';
 import Stepper from './stepper';
-import {Sale} from '../model/sales_mode';
+import {Sale, SaleAttributes, SaleItem} from '../model/sales_mode';
 import ReturnProductScreen from './return_product_screen';
 import {ScrollView} from 'react-native-gesture-handler';
 import {usePosContext} from '../pos_screen';
@@ -71,7 +71,49 @@ const ReturnScreen: React.FC<any> = ({navigation, route}) => {
       return {...prevQuantities, [productId]: newQuantity};
     });
   };
+  const calculateTotal = (): number => {
+    try {
+      if (updateProductQuantities().length === 0) {
+        return 0;
+      }
+      var sum = updateProductQuantities().reduce((total, product) => {
+        var product_price = 0;
+        Object.keys(product?.product_id[0].chanel).forEach(key => {
+          const data = product?.product_id[0].chanel[key];
+          if (foundOutlet?.chanel_id === data?.chanel_id) {
+            product_price = data?.price;
+          }
+        });
 
+        return total + product_price * product.quantity;
+      }, 0);
+      var total = sum;
+      return total; // 0 is the initial value for the total sum
+    } catch (e) {
+      return 0;
+    }
+  };
+  const updateProductQuantities = (): SaleItem[] => {
+    var selectedProducts = Object.keys(quantities);
+    //console.log('selectedProducts', selectedProducts);
+    return (
+      selectedSales?.attributes.sale_items
+        .filter(product =>
+          selectedProducts.some(
+            q => q === product.product_id[0].main_product_id.toString(),
+          ),
+        ) // Get products that exist in quantities
+        .map(product => {
+          const matchingQuantity = selectedProducts.find(
+            q => q === product.product_id[0].main_product_id.toString(),
+          );
+          return {
+            ...product,
+            quantity: quantities[matchingQuantity ?? ''], // Set the quantity if found
+          };
+        }) ?? []
+    );
+  };
   const [photoUri, setPhotoUri] = useState('');
   const [selectedSales, setSelectedSales] = useState<Sale | null>(null);
   const [comments, setComments] = useState('');
@@ -190,8 +232,6 @@ const ReturnScreen: React.FC<any> = ({navigation, route}) => {
               const formattedDate = format(currentDate, 'dd-MM-yyyy hh:mm:ss');
               var user = await User.getUser();
 
-
-   
               let loaction: any;
               try {
                 const networkState = await NetInfo.fetch();
@@ -215,7 +255,7 @@ const ReturnScreen: React.FC<any> = ({navigation, route}) => {
                 tax_rate: 0,
                 tax_amount: 0,
                 shipping: 0,
-                grand_total: 2000,
+                grand_total: calculateTotal(),
                 received_amount: 0,
                 payment_type: 0,
                 paid_amount: 0,
@@ -260,7 +300,7 @@ const ReturnScreen: React.FC<any> = ({navigation, route}) => {
                   data: {
                     outletName: foundOutlet!.name,
                     date: formattedDate,
-                    outletId:foundOutlet?.id,
+                    outletId: foundOutlet?.id,
                     paymentType: selectedPayment,
                     promotion: '',
                     products: productWithQuantity!.map(product => {

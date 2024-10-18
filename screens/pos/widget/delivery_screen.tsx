@@ -31,10 +31,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
     // setSelectedCoupon(null);
     // setSelectedPayment(null);
 
-
-
-
-    console.log("caaling effect");
+    console.log('caaling effect');
   }, [foundOutlet]);
 
   const [step, setStep] = useState(1); // Step 1: Product Selection, Step 2: Apply Coupon, Step 3: Payment & Delivery
@@ -119,7 +116,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
 
       return total + product_price * product.quantity;
     }, 0);
-    var total = sum - (selectedCoupon?.attributes.discount ?? 0);
+    var total = sum;
     return total; // 0 is the initial value for the total sum
   };
   const updateProductQuantities = (): Product[] => {
@@ -327,7 +324,8 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                 shipping: '0.00',
                 grand_total: calculateTotal(),
                 received_amount: 0,
-                paid_amount: 0,
+                paid_amount:
+                  calculateTotal() - (selectedCoupon?.attributes.discount ?? 0),
                 note: comments,
                 status: 1,
                 payment_status: 1,
