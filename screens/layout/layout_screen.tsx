@@ -39,7 +39,7 @@ const LayoutScreen: React.FC<LayoutScreenProps> = ({route, navigation}) => {
     handleSuccess(eventData.outletId),
   );
   const handleSuccess = (outletId: string) => {
-    console.log('calling success');
+
     setOutletCheckin(outletId); // Pass the selected outlet to onCheckIn// Update the foundOutlet
   };
   DeviceEventEmitter.addListener('event.closeevent', eventData => {
@@ -51,13 +51,15 @@ const LayoutScreen: React.FC<LayoutScreenProps> = ({route, navigation}) => {
   });
 
   const [outletCheckin, setOutletCheckin] = useState<string>('');
-  const [selectedTab, setSelectedTab] = useState<
-    ((name: string) => void) | undefined
-  >();
+
+  const outletId = route.params?.outletId ?? '';
   const [param, setParam] = useState<string>('');
+  const [selectedTab, setSelectedTab] = useState<
+  ((name: string) => void) | undefined
+>();
 
   const initialScreen = route.params?.initialRoute ?? 'Home';
-  const outletId = route.params?.outletId ?? '';
+
   const _renderIcon = (routeName: any, selectedTab: any) => {
     let iconName: string = '';
     let name: string = '';
@@ -213,8 +215,11 @@ const LayoutScreen: React.FC<LayoutScreenProps> = ({route, navigation}) => {
         />
       </CurvedBottomBar.Navigator>
       <ConfirmationModal
+
+      cancel={"No"}
+      ok={"Close"}
         isVisible={isModalVisible}
-        message={'Do you can to check out current customer?'}
+        message={'Do you want to close this trip?'}
         onConfirm={() => handleConfirm()}
         onCancel={handleCancel}
       />

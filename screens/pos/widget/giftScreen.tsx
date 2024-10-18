@@ -15,7 +15,7 @@ import {format} from 'date-fns';
 import {ScrollView} from 'react-native-gesture-handler';
 import {usePosContext} from '../pos_screen';
 import {Const} from '../../../constants/const_value';
-
+import NetInfo from '@react-native-community/netinfo';
 const GiftScreen: React.FC<any> = ({navigation, route}) => {
   const {foundOutlet} = usePosContext();
   useEffect(() => {
@@ -169,6 +169,17 @@ const GiftScreen: React.FC<any> = ({navigation, route}) => {
               const formattedDate = format(currentDate, 'dd-MM-yyyy hh:mm:ss');
               //console.log(formattedDate);
               var user = await User.getUser();
+              let loaction: any;
+              try {
+                const networkState = await NetInfo.fetch();
+
+                if (networkState.isConnected) {
+                  loaction = await Const.getCurrentLocationName();
+                } else {
+                  loaction = 'offline';
+                }
+                console.log(loaction);
+              } catch (e) {}
 
               var response = await submitGift({
                 sales_man_id: user?.id,
@@ -176,7 +187,7 @@ const GiftScreen: React.FC<any> = ({navigation, route}) => {
                 gift_id: Object.keys(quantities)[0],
                 quantity: Object.values(quantities)[0],
                 dscription: comments,
-                location: "",
+                location: loaction,
                 uploaded_date: formattedDate,
                 image: photoUri,
               });
@@ -200,7 +211,7 @@ const GiftScreen: React.FC<any> = ({navigation, route}) => {
                     date: formattedDate,
                     paymentType: '',
                     promotion: '',
-                    outletId:foundOutlet?.id,
+                    outletId: foundOutlet?.id,
                     products: productWithQuantity.map(product => {
                       return {
                         name: product.title,
@@ -217,7 +228,6 @@ const GiftScreen: React.FC<any> = ({navigation, route}) => {
               }
               return;
             } else {
-          
               if (productWithQuantity.length === 0) {
                 setError(
                   Const.languageData?.Please_select_atleast_one_gift ??

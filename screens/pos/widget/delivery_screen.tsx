@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, DeviceEventEmitter} from 'react-native';
 
 import {COLORS} from '../../../constants/colors';
 import ApplyCouponScreen from './apply_cupon_screen';
@@ -18,10 +18,11 @@ import {format} from 'date-fns';
 import {ROUTES} from '../../../routes/routes_name';
 import {Const} from '../../../constants/const_value';
 import {usePosContext} from '../pos_screen';
+import NetInfo from '@react-native-community/netinfo';
 import RNFS from 'react-native-fs';
 
 const DeliveryScreen: React.FC<any> = ({navigation}) => {
-  const {foundOutlet} = usePosContext();
+  const {foundOutlet, setMap} = usePosContext();
   useEffect(() => {
     setStep(1);
     setQuantities({});
@@ -35,6 +36,25 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
   const [quantities, setQuantities] = React.useState<Record<string, number>>(
     {},
   );
+  DeviceEventEmitter.addListener('event.resumeoutlet', eventData => {
+    console.log('settting data');
+    console.log(eventData.quantity);
+    const personMap = new Map(Object.entries(eventData.quantity));
+    setTimeout(() => {
+      console.log('This is delayed by 2 seconds', eventData.quantity);
+
+      Object.keys(eventData.quantity).forEach(element => {
+        console.log(element);
+        console.log(personMap.get(element));
+        setQuantities(prevQuantities => {
+          const newQuantity = Number(personMap.get(element));
+          return {...prevQuantities, [element.toString()]: newQuantity};
+        });
+      });
+    }, 5000);
+
+    console.log(quantities);
+  });
   const handleQuantityChange = (
     productId: number,
     increment: boolean,
@@ -56,6 +76,8 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
         const newQuantity = quantity;
         return {...prevQuantities, [productId]: newQuantity};
       });
+
+      console.log(quantities);
       return;
     }
     //console.log('quantities', quantities);
@@ -72,6 +94,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
       }
       return {...prevQuantities, [productId]: newQuantity};
     });
+    setMap(quantities);
   };
   const {
     createSale,
@@ -99,9 +122,13 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
       return 0;
     }
     var sum = updateProductQuantities().reduce((total, product) => {
-      const product_price =
-
-        product.product_price;
+      var product_price = 0;
+      Object.keys(product?.chanel).forEach(key => {
+        const data = product?.chanel[key];
+        if (foundOutlet?.chanel_id === data?.chanel_id) {
+          product_price = data?.price;
+        }
+      });
 
       return total + product_price * product.quantity;
     }, 0);
@@ -248,6 +275,18 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                 return;
               }
               const currentDate = new Date();
+              let loaction: any;
+              try {
+                const networkState = await NetInfo.fetch();
+
+                if (networkState.isConnected) {
+                  loaction = await Const.getCurrentLocationName();
+                } else {
+                  loaction = 'offline';
+                }
+                console.log(loaction);
+              } catch (e) {}
+
               const formattedDate = format(currentDate, 'yyyy-MM-dd');
               //console.log('formattedDate', formattedDate);
               const imageBase = await RNFS.readFile(photoUri, 'base64');
@@ -255,6 +294,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
               var response = await createSale({
                 date: formattedDate,
                 is_sale_created: 'true',
+                location: loaction,
                 image: `data:image/jpeg;base64,${imageBase}`,
                 customer_id: `${foundOutlet?.id}`,
                 salesman_id: user?.id,
@@ -319,7 +359,7 @@ const DeliveryScreen: React.FC<any> = ({navigation}) => {
                             option => option.id === selectedPayment,
                           )[0].name,
                     promotion: selectedCoupon?.attributes.code ?? '-',
-                    outletId:foundOutlet?.id,
+                    outletId: foundOutlet?.id,
                     products: productWithQuantity.map(product => {
                       return {
                         name: product.name,

@@ -8,6 +8,8 @@ import {Const} from '../../constants/const_value';
 interface ConfirmationModalProps {
   isVisible: boolean;
   message:string|null;
+  ok:string|null;
+  cancel:string|null;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -16,6 +18,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   isVisible,
   onConfirm,
 message,
+ok,cancel,
   onCancel,
 }) => {
   return (
@@ -30,14 +33,14 @@ message,
         </Text>
         <View style={styles.buttonContainer}>
           <CustomButton
-            title={Const.languageData?.Cancel ?? 'Cancel'}
+            title={cancel??(Const.languageData?.Cancel ?? 'Cancel')}
             onPress={onCancel}
             makeBorderButton
             buttonStyle={{width: '48%'}}
             textStyle={{color: COLORS.PRIMARY}}
           />
           <CustomButton
-            title={Const.languageData?.Start ?? 'Start'}
+            title={ok??(Const.languageData?.Start ?? 'Start')}
             onPress={onConfirm}
             buttonStyle={{width: '48%'}}
           />

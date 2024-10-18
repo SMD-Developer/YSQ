@@ -15,13 +15,14 @@ import CustomButton from '../../../components/custom_app_button';
 import SelectedPaymentDisplay from './payment_display_component';
 import {Const} from '../../../constants/const_value';
 import PaymentSelection from './payment_selection';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import {
   ImageLibraryOptions,
   ImagePickerResponse,
   launchCamera,
 } from 'react-native-image-picker';
 import {Picker} from '@react-native-picker/picker';
+
 
 interface PaymentAndDeliveryScreenProps {
   photoUri: string;
@@ -124,8 +125,16 @@ const PaymentAndDeliveryScreen: React.FC<PaymentAndDeliveryScreenProps> = ({
         textStyle={{color: 'grey'}}
         buttonStyle={{marginBottom: 20}}
       />
+
       {photoUri ? (
-        <Image source={{uri: photoUri}} style={styles.previewImage} />
+        <View style={styles.imageContainer}>
+          <Image source={{uri: photoUri}} style={styles.image} />
+          <TouchableOpacity
+            style={styles.deleteIcon}
+            onPress={() => setPhotoUri('')}>
+            <Icon name="delete" size={24} color="red" />
+          </TouchableOpacity>
+        </View>
       ) : null}
       <CustomTextField
         onChangeText={setComments}
@@ -228,6 +237,25 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: 10,
     justifyContent: 'center',
+  },
+  imageContainer: {
+    width: '100%',
+    height: 200,
+    marginVertical: 15,
+    borderRadius: 8,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+  },
+  deleteIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 50,
+    padding: 5,
   },
 });
 

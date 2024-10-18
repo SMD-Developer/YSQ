@@ -28,12 +28,15 @@ const GiftDetailScreen: React.FC<SaleDetailScreenProps> = ({route}) => {
 
   return (
     <ScrollView style={styles.container}>
-      <MainAppBar title={Const.languageData?.Gift_Details??`${'Gift'} Details`} isPrimary={false} />
+      <MainAppBar
+        title={Const.languageData?.Gift_Details ?? `${'Gift'} Details`}
+        isPrimary={false}
+      />
       <View style={styles.detailContainer}>
         <Text style={styles.label}>
           {Const.languageData?.Gift_ID ?? 'Gift ID'}:
         </Text>
-        <Text style={styles.value}>{gift.unique_id}</Text>
+        <Text style={styles.value}>{gift.id}</Text>
         <Text style={styles.label}>{Const.languageData?.Date ?? 'Date'}:</Text>
         <Text style={styles.value}>
           {Const.getFormatedDate(gift.uploaded_date)}
@@ -41,7 +44,9 @@ const GiftDetailScreen: React.FC<SaleDetailScreenProps> = ({route}) => {
         <Text style={styles.label}>
           {Const.languageData?.Customer_name ?? 'Customer Name'}:
         </Text>
-        <Text style={styles.value}>{gift.outlets.name}</Text>
+        <Text style={styles.value}>
+          {gift.outlets.name}
+        </Text>
         <Text style={styles.label}>
           {Const.languageData?.Gifts ?? 'Gift Item'}:
         </Text>
@@ -58,8 +63,11 @@ const GiftDetailScreen: React.FC<SaleDetailScreenProps> = ({route}) => {
             </Text>
           </View>
         </View>
+        <Text style={styles.label}>{'Location'}:</Text>
+        <Text style={styles.value}>{gift.location}</Text>
         <Text style={styles.label}>
-        {Const.languageData?.Uploaded_photo ?? 'Uploaded photo'}</Text>
+          {Const.languageData?.Uploaded_photo ?? 'Uploaded photo'}
+        </Text>
         <Image
           source={{uri: gift.image}}
           style={{

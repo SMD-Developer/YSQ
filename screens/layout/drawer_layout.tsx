@@ -11,7 +11,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  DeviceEventEmitter,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+
 import {DrawerContentComponentProps} from '@react-navigation/drawer';
 import {Icon} from 'react-native-paper';
 import HomeScreen from '../home/home_screen';
@@ -20,6 +23,7 @@ import User from '../login/models/user_model';
 import {CommonActions, RouteProp} from '@react-navigation/native';
 import LayoutScreen from './layout_screen';
 import {COLORS} from '../../constants/colors';
+import ConfirmationModal from '../route/confirmation_dialog';
 
 type DrawerScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -140,15 +144,15 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = props => {
               props.navigation.navigate(ROUTES.OpeningCash, {screenType: 0});
             }}
           />
-           <DrawerItem
-            label={ 'Check IN/Out'}
+          <DrawerItem
+            label={'Check IN/Out'}
             icon="inbox-arrow-up"
             onPress={() => {
               props.navigation.navigate(ROUTES.CashInOUt);
             }}
           />
-           <DrawerItem
-            label={ 'Stock IN/Out'}
+          <DrawerItem
+            label={'Stock IN/Out'}
             icon="open-in-new"
             onPress={() => {
               props.navigation.navigate(ROUTES.StockInOUt);
@@ -209,16 +213,63 @@ const DrawerItem: React.FC<{
   setColor?: string;
   onPress: () => void;
   titleColor?: string;
-}> = ({label, icon, setColor = '#80FF0000', onPress, titleColor}) => (
-  <TouchableOpacity
-    style={[styles.drawerItem, {backgroundColor: setColor}]}
-    onPress={onPress}>
-    <Icon source={icon} size={24} color={titleColor ?? 'grey'} />
-    <Text style={[styles.drawerLabel, {color: titleColor ?? 'grey'}]}>
-      {label}
-    </Text>
-  </TouchableOpacity>
-);
+}> = ({label, icon, setColor = '#80FF0000', onPress, titleColor}) => {
+  const navigation = useNavigation();
+  const handleConfirm = () => {
+    setModalVisible(false);
+    navigation.navigate(ROUTES.CheckInFormScreen, {
+      screenType: 2,
+      customerId: outletCheckin,
+    });
+  };
+  const handleCancel = () => {
+    setModalVisible(false);
+  };
+
+  DeviceEventEmitter.addListener('event.setcheckin', eventData =>
+    handleSuccess(eventData.outletId),
+  );
+  const handleSuccess = (outletId: string) => {
+
+    setOutletCheckin(outletId); // Pass the selected outlet to onCheckIn// Update the foundOutlet
+  };
+  DeviceEventEmitter.addListener('event.closeevent', eventData => {
+    console.log('calling cloose');
+    setOutletCheckin('');
+    // if (param) {
+    //   navigation.navigate(param);
+    // }
+  });
+
+  const [outletCheckin, setOutletCheckin] = useState<string>('');
+
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  return (
+    <TouchableOpacity
+      style={[styles.drawerItem, {backgroundColor: setColor}]}
+      onPress={() => {
+        if (outletCheckin) {
+          setModalVisible(true);
+        } else {
+          onPress();
+        }
+      }}>
+      <Icon source={icon} size={24} color={titleColor ?? 'grey'} />
+      <Text style={[styles.drawerLabel, {color: titleColor ?? 'grey'}]}>
+        {label}
+      </Text>
+      <ConfirmationModal
+        cancel={'No'}
+        ok={'Close'}
+        isVisible={isModalVisible}
+        message={'Do you want to close this trip?'}
+        onConfirm={() => handleConfirm()}
+        onCancel={handleCancel}
+      />
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

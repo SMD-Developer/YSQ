@@ -272,6 +272,14 @@ const ChannelSchema = {
   },
 };
 
+const PauseOutletSchema = {
+  name: 'PauseOutlet',
+  properties: {
+    id: 'mixed',
+    quantity: 'string',
+  },
+};
+
 import Realm from 'realm';
 const realmObject = new Realm({
   schema: [
@@ -290,7 +298,8 @@ const realmObject = new Realm({
     SaveSaleReturnSchema,
     SaveGiftSchema,
     MileageSchema,
-    AddOutletSchema
+    AddOutletSchema,
+    PauseOutletSchema
   ],
 });
 export {realmObject};

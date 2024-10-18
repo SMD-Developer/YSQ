@@ -53,9 +53,9 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation, route}) => {
     latitude: parseFloat(lat),
     longitude: parseFloat(long),
   });
-  const [time, setTime] = useState<string>('');
-  const [distance, setDistance] = useState<string>('');
-  const [arrival, setArrival] = useState<string>('');
+  const [time, setTime] = useState<string>('Nan');
+  const [distance, setDistance] = useState<string>('Nan');
+  const [arrival, setArrival] = useState<string>('Nan');
   const [heading, setHeading] = useState<number>(0);
   const [expanded, setExpanded] = useState<boolean>(true);
   const mapRef = useRef<MapView>(null);
@@ -232,7 +232,7 @@ const MapScreen: React.FC<MapScreenProps> = ({navigation, route}) => {
       </TouchableOpacity>
 
       {/* Bottom Information Box */}
-      {time &&
+      {
         (expanded ? (
           <View style={styles.bottomContainer}>
             <TouchableOpacity

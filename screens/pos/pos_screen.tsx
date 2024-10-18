@@ -27,6 +27,8 @@ import {RootStackParamList, ROUTES} from '../../routes/routes_name';
 import {AddOutletModel} from '../outlet/modle/add_outlet_model';
 import CustomSnackbar from '../../components/custom_snackbar.tsx';
 import ConfirmationModal from '../route/confirmation_dialog.tsx';
+import {realmObject} from '../../routes/realm.tsx';
+import Realm from 'realm';
 
 type PosScreenRouteProp = RouteProp<RootStackParamList, typeof ROUTES.Pos>;
 
@@ -42,6 +44,7 @@ type CheckInComponentProps = {
   setError: React.Dispatch<React.SetStateAction<String | null>>;
   showSnackBar: boolean;
   setShowSnackBar: React.Dispatch<React.SetStateAction<boolean>>;
+  map: any;
 };
 
 const CheckInComponent: React.FC<CheckInComponentProps> = ({
@@ -51,6 +54,7 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
   setFoundOutlet,
   setError,
   setShowSnackBar,
+  map,
 }) => {
   var navigation = useNavigation();
   const {outlets, loading} = useOutletController();
@@ -83,7 +87,6 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
   }, [loading, outlets, outlet, foundOutlet, setFoundOutlet, onCheckIn]);
   const [isCancelModalVisible, setCancelModalVisible] = useState(false);
   const handleSuccess = () => {
-    console.log('calling success');
     onCheckIn(tempSelectedOutlet!);
     DeviceEventEmitter.emit('event.setcheckin', {outletId: tempSelectedOutlet}); // Pass the selected outlet to onCheckIn// Update the foundOutlet
   };
@@ -110,8 +113,10 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
           },
       ]}>
       <ConfirmationModal
+        cancel={'No'}
+        ok={'Close'}
         isVisible={isCancelModalVisible}
-        message={'Do you can to check out current customer?'}
+        message={'Do you want to close this trip?'}
         onConfirm={() => handleConfirm()}
         onCancel={handleCancel}
       />
@@ -143,9 +148,30 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
               )}
             </View>
             <View style={{flexDirection: 'row'}}>
-              <View style={{marginRight: 20}}>
+              <TouchableOpacity
+                style={{marginRight: 20}}
+                onPress={() => {
+                  realmObject.write(() => {
+                    try {
+                      realmObject.create(
+                        'PauseOutlet',
+                        {
+                          quantity: JSON.stringify(map),
+                          id: outlet,
+                        },
+                        Realm.UpdateMode.Modified,
+                      );
+                    } catch (error) {
+                      console.log('error:', error);
+                    }
+                    onCheckIn('');
+                    setFoundOutlet(null);
+                    // product.images = product.images.imageUrls;
+                  });
+                  console.log(map);
+                }}>
                 <Icon source="pause-circle" size={30} color="white" />
-              </View>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={{}}
                 onPress={() => {
@@ -238,11 +264,30 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
                     setShowSnackBar(true);
                     return;
                   }
-                  // @ts-ignore
-                  navigation.navigate(ROUTES.CheckInFormScreen, {
-                    screenType: 1,
-                    customerId: tempSelectedOutlet,
-                  });
+                  const outlets = realmObject.objects('PauseOutlet');
+                  const foundObject = outlets.find(
+                    obj => obj.id === tempSelectedOutlet!,
+                  );
+                  
+
+                  if (foundObject) {
+                    console.log(foundObject.quantity);
+                    console.log(foundObject.id);
+                    DeviceEventEmitter.emit('event.resumeoutlet', {
+                      quantity: JSON.parse(foundObject.quantity as string),
+                    });
+                    handleSuccess();
+
+                     realmObject.write(() => {
+              realmObject.delete(foundObject);
+            });
+                  } else {
+                    // @ts-ignore
+                    navigation.navigate(ROUTES.CheckInFormScreen, {
+                      screenType: 1,
+                      customerId: tempSelectedOutlet,
+                    });
+                  }
                   setModalVisible(false);
                 }}
                 title={Const.languageData?.Confirm ?? 'Confirm'}
@@ -257,15 +302,21 @@ const CheckInComponent: React.FC<CheckInComponentProps> = ({
 };
 
 const Tab = createMaterialTopTabNavigator();
-const PosContext = createContext<{foundOutlet: AddOutletModel | null}>({
+const PosContext = createContext<{
+  foundOutlet: AddOutletModel | null;
+  map: object | null;
+  setMap: (map: object) => void;
+}>({
   foundOutlet: null,
+  map: null,
+  setMap: () => {}, // Placeholder function
 });
 
 export const usePosContext = () => useContext(PosContext);
 const PosScreen: React.FC<PosProps> = ({route}) => {
   const [foundOutlet, setFoundOutlet] = useState<AddOutletModel | null>(null);
   const [outlet, setOutlet] = useState<string>('');
-
+  const [map, setMap] = useState<object | null>(null);
   const handleCheckIn = (selectedOutlet: string) => {
     setOutlet(selectedOutlet);
   };
@@ -280,7 +331,7 @@ const PosScreen: React.FC<PosProps> = ({route}) => {
   // @ts-ignore
   // @ts-ignore
   return (
-    <PosContext.Provider value={{foundOutlet}}>
+    <PosContext.Provider value={{foundOutlet, map, setMap}}>
       <View style={styles.safeArea}>
         <MainAppBar
           title={Const.languageData?.POS ?? 'Pos'}
@@ -294,6 +345,7 @@ const PosScreen: React.FC<PosProps> = ({route}) => {
             onCheckIn={handleCheckIn}
             foundOutlet={foundOutlet}
             setFoundOutlet={setFoundOutlet}
+            map={map}
             setError={setError}
             setShowSnackBar={setShowSnackBar}
             showSnackBar={showSnackBar}
